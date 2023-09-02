@@ -14,7 +14,12 @@ serde = { version = "1", features = ["derive"], optional = true }
 
 [features]
 serialize = ["dep:serde", "glam/serde"]
+
 # Enable interoperation of glam types with mint-compatible libraries
 mint = ["glam/mint"]
+
+# Enable enhanced determinism for glam types using libm
+libm = ["glam/libm"]
+
 # Enable assertions to check the validity of parameters passed to glam
 glam_assert = ["glam/glam-assert"]
