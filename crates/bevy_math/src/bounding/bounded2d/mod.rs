@@ -1,5 +1,16 @@
-use super::BoundingVolume;
+mod shapes;
+
+use glam::Mat2;
+
+use super::{BoundingVolume, IntersectsVolume};
 use crate::prelude::Vec2;
+
+/// Rotates the given vector counterclockwise by an angle in radians.
+pub fn rotate_vec2(vec: Vec2, rotation: f32) -> Vec2 {
+    let (sin, cos) = rotation.sin_cos();
+    let mat = Mat2::from_cols_array(&[cos, sin, sin, cos]);
+    mat * vec
+}
 
 /// A trait with methods that return 2D bounded volumes for a shape
 pub trait Bounded2d {
@@ -74,6 +85,13 @@ impl BoundingVolume for Aabb2d {
         };
         debug_assert!(b.min.x <= b.max.x && b.min.y <= b.max.y);
         b
+    }
+}
+
+impl IntersectsVolume<Self> for Aabb2d {
+    #[inline]
+    fn intersects(&self, volume: &Self) -> bool {
+        self.min.cmplt(volume.max).all() && self.max.cmpgt(volume.min).all()
     }
 }
 
@@ -266,6 +284,15 @@ impl BoundingVolume for BoundingCircle {
         debug_assert!(amount >= 0.);
         debug_assert!(self.radius() >= amount);
         Self::new(self.center, self.radius() - amount)
+    }
+}
+
+impl IntersectsVolume<Self> for BoundingCircle {
+    #[inline]
+    fn intersects(&self, volume: &Self) -> bool {
+        let delta_center = volume.center - self.center;
+        let distance_squared = delta_center.length_squared();
+        distance_squared <= self.radius() + volume.radius()
     }
 }
 
