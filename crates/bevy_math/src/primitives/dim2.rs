@@ -379,6 +379,20 @@ impl RegularPolygon {
             sides,
         }
     }
+
+    /// Returns an iterator over the vertices of the regular polygon,
+    /// rotated counterclockwise by the given angle in radians.
+    pub fn vertices(self, rotation: f32) -> impl IntoIterator<Item = Vec2> {
+        // Add pi/2 so that the polygon has a vertex at the top (sin is 1.0 and cos is 0.0)
+        let start_angle = rotation + std::f32::consts::FRAC_PI_2;
+        let step = std::f32::consts::TAU / self.sides as f32;
+
+        (0..self.sides).map(move |i| {
+            let theta = start_angle + i as f32 * step;
+            let (sin, cos) = theta.sin_cos();
+            Vec2::new(cos, sin) * self.circumcircle.radius
+        })
+    }
 }
 
 #[cfg(test)]
