@@ -1,4 +1,4 @@
-use glam::Vec2;
+use glam::{Mat2, Vec2};
 
 use crate::primitives::{
     BoxedPolygon, BoxedPolyline2d, Circle, Direction2d, Ellipse, Line2d, Plane2d, Polygon,
@@ -39,7 +39,7 @@ impl Bounded2d for Ellipse {
     }
 
     fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        self.aabb_2d(translation, 0.0).bounding_circle()
+        BoundingCircle::new(translation, self.half_width.max(self.half_height))
     }
 }
 
@@ -55,8 +55,8 @@ impl Bounded2d for Plane2d {
 
         // Dividing `f32::MAX` by 2.0 can actually be good so that we can do operations
         // like growing or shrinking the AABB without breaking things.
-        let half_width = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
-        let half_height = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
+        let half_width = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
+        let half_height = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
         let half_size = Vec2::new(half_width, half_height);
 
         Aabb2d {
@@ -78,8 +78,8 @@ impl Bounded2d for Line2d {
 
         // Dividing `f32::MAX` by 2.0 can actually be good so that we can do operations
         // like growing or shrinking the AABB without breaking things.
-        let half_width = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
-        let half_height = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
+        let half_width = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
+        let half_height = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
         let half_size = Vec2::new(half_width, half_height);
 
         Aabb2d {
@@ -145,14 +145,17 @@ impl Bounded2d for Triangle2d {
     }
 
     fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, self.vertices)
+        self.aabb_2d(translation, 0.0).bounding_circle()
     }
 }
 
 impl Bounded2d for Rectangle {
     fn aabb_2d(&self, translation: Vec2, rotation: f32) -> Aabb2d {
         let half_size = Vec2::new(self.half_width, self.half_height);
-        let half_extents = rotate_vec2(half_size, rotation);
+
+        let (sin, cos) = rotation.sin_cos();
+        let mat = Mat2::from_cols_array(&[cos.abs(), sin.abs(), sin.abs(), cos.abs()]);
+        let half_extents = mat * half_size;
 
         Aabb2d {
             min: translation - half_extents,
