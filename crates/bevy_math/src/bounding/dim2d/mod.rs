@@ -273,7 +273,7 @@ impl BoundingCircle {
     }
 
     /// Computes the smallest [`BoundingCircle`] containing the given set of points,
-    /// translated by `translation`.
+    /// transformed by `translation` and `rotation`.
     #[inline(always)]
     pub fn from_point_cloud<I>(translation: Vec2, rotation: f32, points: I) -> BoundingCircle
     where
