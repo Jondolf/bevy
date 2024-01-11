@@ -31,7 +31,8 @@ pub trait Bounded2d {
     /// The rotation is in radians, counterclockwise, with 0 meaning no rotation.
     fn aabb_2d(&self, translation: Vec2, rotation: f32) -> Aabb2d;
     /// Get a bounding circle for the shape
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle;
+    /// The rotation is in radians, counterclockwise, with 0 meaning no rotation.
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle;
 }
 
 /// A 2D axis-aligned bounding box, or bounding rectangle
@@ -274,7 +275,7 @@ impl BoundingCircle {
     /// Computes the smallest [`BoundingCircle`] containing the given set of points,
     /// translated by `translation`.
     #[inline(always)]
-    pub fn from_point_cloud<I>(translation: Vec2, points: I) -> BoundingCircle
+    pub fn from_point_cloud<I>(translation: Vec2, rotation: f32, points: I) -> BoundingCircle
     where
         I: IntoIterator<Item = Vec2> + Clone,
     {
@@ -289,7 +290,10 @@ impl BoundingCircle {
             }
         }
 
-        BoundingCircle::new(center + translation, radius_squared.sqrt())
+        BoundingCircle::new(
+            rotate_vec2(center, rotation) + translation,
+            radius_squared.sqrt(),
+        )
     }
 
     /// Get the radius of the bounding circle
@@ -310,7 +314,7 @@ impl BoundingVolume for BoundingCircle {
 
     #[inline(always)]
     fn half_size(&self) -> Self::HalfSize {
-        self.circle.radius
+        self.radius()
     }
 
     #[inline(always)]

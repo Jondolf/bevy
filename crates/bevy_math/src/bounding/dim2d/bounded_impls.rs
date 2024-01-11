@@ -15,7 +15,7 @@ impl Bounded2d for Circle {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         BoundingCircle::new(translation, self.radius)
     }
 }
@@ -38,7 +38,7 @@ impl Bounded2d for Ellipse {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         BoundingCircle::new(translation, self.half_width.max(self.half_height))
     }
 }
@@ -65,7 +65,7 @@ impl Bounded2d for Plane2d {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         BoundingCircle::new(translation, f32::MAX / 2.0)
     }
 }
@@ -88,7 +88,7 @@ impl Bounded2d for Line2d {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         BoundingCircle::new(translation, f32::MAX / 2.0)
     }
 }
@@ -106,8 +106,8 @@ impl Bounded2d for Segment2d {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, [self.point1(), self.point2()])
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
+        BoundingCircle::new(translation, self.half_length)
     }
 }
 
@@ -116,8 +116,8 @@ impl<const N: usize> Bounded2d for Polyline2d<N> {
         Aabb2d::from_point_cloud(translation, rotation, self.vertices)
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, self.vertices)
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle {
+        BoundingCircle::from_point_cloud(translation, rotation, self.vertices)
     }
 }
 
@@ -126,8 +126,8 @@ impl Bounded2d for BoxedPolyline2d {
         Aabb2d::from_point_cloud(translation, rotation, self.vertices.to_vec())
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, self.vertices.to_vec())
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle {
+        BoundingCircle::from_point_cloud(translation, rotation, self.vertices.to_vec())
     }
 }
 
@@ -144,8 +144,8 @@ impl Bounded2d for Triangle2d {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        self.aabb_2d(translation, 0.0).bounding_circle()
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle {
+        self.aabb_2d(translation, rotation).bounding_circle()
     }
 }
 
@@ -163,7 +163,7 @@ impl Bounded2d for Rectangle {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         let half_size = Vec2::new(self.half_width, self.half_height);
         BoundingCircle {
             center: translation,
@@ -179,8 +179,8 @@ impl<const N: usize> Bounded2d for Polygon<N> {
         Aabb2d::from_point_cloud(translation, rotation, self.vertices)
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, self.vertices)
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle {
+        BoundingCircle::from_point_cloud(translation, rotation, self.vertices)
     }
 }
 
@@ -189,8 +189,8 @@ impl Bounded2d for BoxedPolygon {
         Aabb2d::from_point_cloud(translation, rotation, self.vertices.to_vec())
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, self.vertices.to_vec())
+    fn bounding_circle(&self, translation: Vec2, rotation: f32) -> BoundingCircle {
+        BoundingCircle::from_point_cloud(translation, rotation, self.vertices.to_vec())
     }
 }
 
@@ -210,7 +210,7 @@ impl Bounded2d for RegularPolygon {
         }
     }
 
-    fn bounding_circle(&self, translation: Vec2) -> BoundingCircle {
+    fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
         BoundingCircle::new(translation, self.circumcircle.radius)
     }
 }
