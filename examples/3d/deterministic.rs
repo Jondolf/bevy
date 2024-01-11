@@ -4,7 +4,6 @@
 
 use bevy::app::App;
 use bevy::app::Startup;
-use bevy::prelude::shape::Plane;
 use bevy::prelude::*;
 use bevy::render::deterministic::DeterministicRenderingConfig;
 
@@ -33,7 +32,7 @@ fn setup(
         ..default()
     });
 
-    let mesh = meshes.add(Plane::from_size(2.0));
+    let mesh = meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(2.0)));
     for i in 0..360 {
         let color = Color::hsl(i as f32, 1.0, 0.5);
         commands.spawn(PbrBundle {

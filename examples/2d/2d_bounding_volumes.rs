@@ -47,7 +47,7 @@ fn setup(
     // Circle
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(circle.into()).into(),
+            mesh: meshes.add(circle).into(),
             material: materials.add(ColorMaterial::from(Color::PURPLE)),
             transform: Transform::from_translation(Vec3::new(-200., 100., 0.)),
             ..default()
@@ -58,7 +58,7 @@ fn setup(
     // Rectangle
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(ellipse.into()).into(),
+            mesh: meshes.add(ellipse).into(),
             material: materials.add(ColorMaterial::from(Color::ORANGE)),
             transform: Transform::from_translation(Vec3::new(-75., 100., 0.)),
             ..default()
@@ -69,7 +69,7 @@ fn setup(
     // Quad
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(rectangle.into()).into(),
+            mesh: meshes.add(rectangle).into(),
             material: materials.add(ColorMaterial::from(Color::LIME_GREEN)),
             transform: Transform::from_translation(Vec3::new(75., 100., 0.)),
             ..default()
@@ -80,7 +80,7 @@ fn setup(
     // Hexagon
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(regular_polygon.into()).into(),
+            mesh: meshes.add(regular_polygon).into(),
             material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
             transform: Transform::from_translation(Vec3::new(200., 100., 0.)),
             ..default()
@@ -91,7 +91,7 @@ fn setup(
     // Triangle
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(triangle.into()).into(),
+            mesh: meshes.add(triangle).into(),
             material: materials.add(ColorMaterial::from(Color::YELLOW_GREEN)),
             transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
             ..default()
@@ -105,10 +105,9 @@ fn draw_aabbs<T: Bounded2d + Sync + Send + 'static>(
     mut gizmos: Gizmos,
 ) {
     for (transform, shape) in &query {
-        let aabb = shape
-            .0
-            .aabb_2d(default(), transform.rotation.to_euler(EulerRot::XYZ).2);
-        let bounding_circle = shape.0.bounding_circle(default());
+        let rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
+        let aabb = shape.0.aabb_2d(default(), rotation);
+        let bounding_circle = shape.0.bounding_circle(default(), rotation);
         gizmos.rect_2d(
             transform.translation.truncate() + aabb.center(),
             default(),

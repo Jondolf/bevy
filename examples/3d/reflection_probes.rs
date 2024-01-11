@@ -8,6 +8,7 @@
 
 use bevy::core_pipeline::Skybox;
 use bevy::prelude::*;
+use bevy_internal::render::mesh::shape::Meshable;
 
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
@@ -109,13 +110,7 @@ fn spawn_sphere(
     materials: &mut Assets<StandardMaterial>,
 ) {
     // Create a sphere mesh.
-    let sphere_mesh = meshes.add(
-        Mesh::try_from(shape::Icosphere {
-            radius: 1.0,
-            subdivisions: 7,
-        })
-        .unwrap(),
-    );
+    let sphere_mesh = meshes.add(primitives::Sphere { radius: 1.0 }.mesh().ico(7).unwrap());
 
     // Create a sphere.
     commands.spawn(PbrBundle {
