@@ -50,13 +50,13 @@ impl Bounded2d for Plane2d {
             *self.normal,
             rotation - std::f32::consts::FRAC_PI_2 * self.normal.y.signum(),
         );
-        let parallel_with_x = direction == Vec2::X || direction == Vec2::NEG_X;
-        let parallel_with_y = direction == Vec2::Y || direction == Vec2::NEG_Y;
+        let x_parallel = direction == Vec2::X || direction == Vec2::NEG_X;
+        let y_parallel = direction == Vec2::Y || direction == Vec2::NEG_Y;
 
         // Dividing `f32::MAX` by 2.0 can actually be good so that we can do operations
         // like growing or shrinking the AABB without breaking things.
-        let half_width = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
-        let half_height = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
+        let half_width = if y_parallel { 0.0 } else { f32::MAX / 2.0 };
+        let half_height = if x_parallel { 0.0 } else { f32::MAX / 2.0 };
         let half_size = Vec2::new(half_width, half_height);
 
         Aabb2d {
@@ -73,13 +73,13 @@ impl Bounded2d for Plane2d {
 impl Bounded2d for Line2d {
     fn aabb_2d(&self, translation: Vec2, rotation: f32) -> Aabb2d {
         let direction = rotate_vec2(*self.direction, rotation);
-        let parallel_with_x = direction == Vec2::X || direction == Vec2::NEG_X;
-        let parallel_with_y = direction == Vec2::Y || direction == Vec2::NEG_Y;
+        let x_parallel = direction == Vec2::X || direction == Vec2::NEG_X;
+        let y_parallel = direction == Vec2::Y || direction == Vec2::NEG_Y;
 
         // Dividing `f32::MAX` by 2.0 can actually be good so that we can do operations
         // like growing or shrinking the AABB without breaking things.
-        let half_width = if parallel_with_y { 0.0 } else { f32::MAX / 2.0 };
-        let half_height = if parallel_with_x { 0.0 } else { f32::MAX / 2.0 };
+        let half_width = if y_parallel { 0.0 } else { f32::MAX / 2.0 };
+        let half_height = if x_parallel { 0.0 } else { f32::MAX / 2.0 };
         let half_size = Vec2::new(half_width, half_height);
 
         Aabb2d {

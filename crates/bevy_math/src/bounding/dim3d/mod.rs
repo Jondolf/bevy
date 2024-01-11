@@ -41,7 +41,7 @@ impl Aabb3d {
     #[inline(always)]
     pub fn from_point_cloud(
         translation: Vec3,
-        rotation: f32,
+        rotation: Quat,
         points: impl IntoIterator<Item = Vec3>,
     ) -> Aabb3d {
         // Transform all points by rotation
@@ -265,7 +265,7 @@ impl BoundingSphere {
     /// Computes the smallest [`BoundingSphere`] containing the given set of points,
     /// translated by `translation`.
     #[inline(always)]
-    pub fn from_point_cloud<I>(translation: Vec3, points: I) -> BoundingSphere
+    pub fn from_point_cloud<I>(translation: Vec3, rotation: Quat, points: I) -> BoundingSphere
     where
         I: IntoIterator<Item = Vec3> + Clone,
     {
@@ -280,7 +280,7 @@ impl BoundingSphere {
             }
         }
 
-        BoundingSphere::new(center + translation, radius_squared.sqrt())
+        BoundingSphere::new(rotation * center + translation, radius_squared.sqrt())
     }
 
     /// Get the radius of the bounding sphere
