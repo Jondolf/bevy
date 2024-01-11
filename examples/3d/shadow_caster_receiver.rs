@@ -40,7 +40,7 @@ fn setup(
     // sphere - initially a caster
     commands.spawn(PbrBundle {
         mesh: sphere_handle.clone(),
-        material: materials.add(Color::RED.into()),
+        material: materials.add(Color::RED),
         transform: Transform::from_xyz(-1.0, spawn_height, 0.0),
         ..default()
     });
@@ -49,7 +49,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: sphere_handle,
-            material: materials.add(Color::BLUE.into()),
+            material: materials.add(Color::BLUE),
             transform: Transform::from_xyz(1.0, spawn_height, 0.0),
             ..default()
         },
@@ -62,10 +62,9 @@ fn setup(
             mesh: meshes.add(
                 primitives::Plane3d::default()
                     .mesh()
-                    .size(Vec2::splat(20.0))
-                    .into(),
+                    .size(Vec2::splat(20.0)),
             ),
-            material: materials.add(Color::GREEN.into()),
+            material: materials.add(Color::GREEN),
             transform: Transform::from_xyz(0.0, 1.0, -10.0),
             ..default()
         },
@@ -78,8 +77,7 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(20.0))
-                .into(),
+                .size(Vec2::splat(20.0)),
         ),
         material: white_handle,
         ..default()

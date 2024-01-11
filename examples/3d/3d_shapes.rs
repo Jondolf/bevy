@@ -37,12 +37,12 @@ fn setup(
     });
 
     let shapes = [
-        meshes.add(primitives::Cuboid::default().into()),
-        meshes.add(primitives::Capsule::default().into()),
-        meshes.add(primitives::Torus::default().into()),
-        meshes.add(primitives::Cylinder::default().into()),
-        meshes.add(primitives::Cone::default().into()),
-        meshes.add(primitives::ConicalFrustum::default().into()),
+        meshes.add(primitives::Cuboid::default()),
+        meshes.add(primitives::Capsule::default()),
+        meshes.add(primitives::Torus::default()),
+        meshes.add(primitives::Cylinder::default()),
+        meshes.add(primitives::Cone::default()),
+        meshes.add(primitives::ConicalFrustum::default()),
         meshes.add(primitives::Sphere { radius: 0.5 }.mesh().ico(6).unwrap()),
         meshes.add(primitives::Sphere { radius: 0.5 }.mesh().uv(6, 6)),
     ];
@@ -82,10 +82,9 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(50.0))
-                .into(),
+                .size(Vec2::splat(50.0)),
         ),
-        material: materials.add(Color::SILVER.into()),
+        material: materials.add(Color::SILVER),
         ..default()
     });
 

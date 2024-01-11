@@ -56,8 +56,8 @@ impl FromWorld for ButtonMaterials {
     fn from_world(world: &mut World) -> Self {
         let mut materials = world.resource_mut::<Assets<ColorMaterial>>();
         Self {
-            normal: materials.add(ColorMaterial::from(NORMAL_BUTTON_COLOR)),
-            active: materials.add(ColorMaterial::from(ACTIVE_BUTTON_COLOR)),
+            normal: materials.add(NORMAL_BUTTON_COLOR),
+            active: materials.add(ACTIVE_BUTTON_COLOR),
         }
     }
 }
@@ -73,21 +73,18 @@ impl FromWorld for ButtonMeshes {
         let mut meshes = world.resource_mut::<Assets<Mesh>>();
         Self {
             circle: meshes
-                .add(
-                    primitives::Circle {
-                        radius: BUTTON_RADIUS,
-                    }
-                    .into(),
-                )
+                .add(primitives::Circle {
+                    radius: BUTTON_RADIUS,
+                })
                 .into(),
             triangle: meshes
-                .add(primitives::RegularPolygon::new(BUTTON_RADIUS, 3).into())
+                .add(primitives::RegularPolygon::new(BUTTON_RADIUS, 3))
                 .into(),
             start_pause: meshes
-                .add(primitives::Rectangle::from_size(START_SIZE).into())
+                .add(primitives::Rectangle::from_size(START_SIZE))
                 .into(),
             trigger: meshes
-                .add(primitives::Rectangle::from_size(TRIGGER_SIZE).into())
+                .add(primitives::Rectangle::from_size(TRIGGER_SIZE))
                 .into(),
         }
     }

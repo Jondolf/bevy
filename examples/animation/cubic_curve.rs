@@ -38,8 +38,8 @@ fn setup(
     // Spawning a cube to experiment on
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(primitives::Cuboid::default().into()),
-            material: materials.add(Color::ORANGE.into()),
+            mesh: meshes.add(primitives::Cuboid::default()),
+            material: materials.add(Color::ORANGE),
             transform: Transform::from_translation(points[0][0]),
             ..default()
         },
@@ -60,13 +60,8 @@ fn setup(
 
     // ground plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(
-            primitives::Plane3d::default()
-                .mesh()
-                .size(Vec2::splat(50.))
-                .into(),
-        ),
-        material: materials.add(Color::SILVER.into()),
+        mesh: meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(50.))),
+        material: materials.add(Color::SILVER),
         ..default()
     });
 

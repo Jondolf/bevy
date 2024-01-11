@@ -43,7 +43,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Mesh::from(primitives::Cuboid::default())),
-            material: materials.add(Color::WHITE.into()),
+            material: materials.add(Color::WHITE),
             transform: Transform::from_rotation(Quat::from_rotation_y(PI / 4.0)),
             ..default()
         },

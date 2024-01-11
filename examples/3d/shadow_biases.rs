@@ -116,8 +116,7 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(2.0 * spawn_plane_depth))
-                .into(),
+                .size(Vec2::splat(2.0 * spawn_plane_depth)),
         ),
         material: white_handle,
         ..default()

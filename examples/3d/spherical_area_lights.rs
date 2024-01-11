@@ -25,8 +25,7 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(100.0))
-                .into(),
+                .size(Vec2::splat(100.0)),
         ),
         material: materials.add(StandardMaterial {
             base_color: Color::rgb(0.2, 0.2, 0.2),

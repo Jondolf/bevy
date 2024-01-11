@@ -20,13 +20,8 @@ fn setup(
 ) {
     // opaque plane, uses `alpha_mode: Opaque` by default
     commands.spawn(PbrBundle {
-        mesh: meshes.add(
-            primitives::Plane3d::default()
-                .mesh()
-                .size(Vec2::splat(6.0))
-                .into(),
-        ),
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        mesh: meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(6.0))),
+        material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
         ..default()
     });
     // transparent sphere, uses `alpha_mode: Mask(f32)`
@@ -64,14 +59,14 @@ fn setup(
         // Notice how there is no need to set the `alpha_mode` explicitly here.
         // When converting a color to a material using `into()`, the alpha mode is
         // automatically set to `Blend` if the alpha channel is anything lower than 1.0.
-        material: materials.add(Color::rgba(0.5, 0.5, 1.0, 0.0).into()),
+        material: materials.add(Color::rgba(0.5, 0.5, 1.0, 0.0)),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
     });
     // opaque sphere
     commands.spawn(PbrBundle {
         mesh: meshes.add(primitives::Sphere::default().mesh().ico(3).unwrap()),
-        material: materials.add(Color::rgb(0.7, 0.2, 0.1).into()),
+        material: materials.add(Color::rgb(0.7, 0.2, 0.1)),
         transform: Transform::from_xyz(0.0, 0.5, -1.5),
         ..default()
     });

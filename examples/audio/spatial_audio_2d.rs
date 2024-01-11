@@ -34,9 +34,7 @@ fn setup(
     // sound emitter
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes
-                .add(primitives::Circle { radius: 15.0 }.into())
-                .into(),
+            mesh: meshes.add(primitives::Circle { radius: 15.0 }).into(),
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             transform: Transform::from_translation(Vec3::new(0.0, 50.0, 0.0)),
             ..default()

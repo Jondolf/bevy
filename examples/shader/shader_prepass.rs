@@ -61,13 +61,8 @@ fn setup(
 
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(
-            primitives::Plane3d::default()
-                .mesh()
-                .size(Vec2::splat(5.0))
-                .into(),
-        ),
-        material: std_materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        mesh: meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(5.0))),
+        material: std_materials.add(Color::rgb(0.3, 0.5, 0.3)),
         ..default()
     });
 
@@ -76,7 +71,7 @@ fn setup(
     // For a real application, this isn't ideal.
     commands.spawn((
         MaterialMeshBundle {
-            mesh: meshes.add(primitives::Rectangle::new(20.0, 20.0).into()),
+            mesh: meshes.add(primitives::Rectangle::new(20.0, 20.0)),
             material: depth_materials.add(PrepassOutputMaterial {
                 settings: ShowPrepassSettings::default(),
             }),

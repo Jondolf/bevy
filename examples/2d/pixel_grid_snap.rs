@@ -87,7 +87,7 @@ fn setup_mesh(
                 .add(Mesh::from(primitives::Capsule::default()))
                 .into(),
             transform: Transform::from_xyz(40., 0., 2.).with_scale(Vec3::splat(32.)),
-            material: materials.add(ColorMaterial::from(Color::BLACK)),
+            material: materials.add(Color::BLACK),
             ..default()
         },
         Rotate,

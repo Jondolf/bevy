@@ -55,7 +55,7 @@ pub trait IntersectsVolume<Volume: BoundingVolume> {
     fn intersects(&self, volume: &Volume) -> bool;
 }
 
-mod bounded2d;
-pub use bounded2d::*;
-mod bounded3d;
-pub use bounded3d::*;
+mod dim2d;
+pub use dim2d::*;
+mod dim3d;
+pub use dim3d::*;

@@ -25,13 +25,8 @@ fn setup(
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.spawn(PbrBundle {
-        mesh: meshes.add(
-            primitives::Plane3d::default()
-                .mesh()
-                .size(Vec2::splat(5.0))
-                .into(),
-        ),
-        material: standard_materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        mesh: meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(5.0))),
+        material: standard_materials.add(Color::rgb(0.3, 0.5, 0.3)),
         ..default()
     });
     commands.spawn(PointLightBundle {

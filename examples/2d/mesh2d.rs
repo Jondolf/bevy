@@ -22,7 +22,7 @@ fn setup(
             .add(Mesh::from(primitives::Rectangle::default()))
             .into(),
         transform: Transform::default().with_scale(Vec3::splat(128.)),
-        material: materials.add(ColorMaterial::from(Color::PURPLE)),
+        material: materials.add(Color::PURPLE),
         ..default()
     });
 }

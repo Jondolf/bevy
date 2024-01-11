@@ -70,12 +70,7 @@ fn setup(
 ) {
     let icosphere_mesh = meshes.add(primitives::Sphere { radius: 0.9 }.mesh().ico(7).unwrap());
     let cube_mesh = meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::splat(0.7))));
-    let plane_mesh = meshes.add(
-        primitives::Plane3d::default()
-            .mesh()
-            .size(Vec2::splat(2.0))
-            .into(),
-    );
+    let plane_mesh = meshes.add(primitives::Plane3d::default().mesh().size(Vec2::splat(2.0)));
 
     let cylinder_mesh = meshes.add(Mesh::from(
         primitives::Cylinder::new(0.5, 2.0).mesh().resolution(50),
@@ -85,7 +80,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: cube_mesh.clone(),
-            material: materials.add(StandardMaterial { ..default() }),
+            material: materials.add(StandardMaterial::default()),
             transform: Transform::from_xyz(0.25, 0.5, -2.0).with_rotation(Quat::from_euler(
                 EulerRot::XYZ,
                 1.4,
@@ -105,7 +100,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: cube_mesh,
-            material: materials.add(StandardMaterial { ..default() }),
+            material: materials.add(StandardMaterial::default()),
             transform: Transform::from_xyz(-0.75, 0.7, -2.0).with_rotation(Quat::from_euler(
                 EulerRot::XYZ,
                 0.4,

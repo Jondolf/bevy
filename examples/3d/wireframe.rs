@@ -57,7 +57,7 @@ fn setup(
         mesh: meshes.add(Mesh::from(
             primitives::Plane3d::default().mesh().size(Vec2::splat(5.0)),
         )),
-        material: materials.add(Color::BLUE.into()),
+        material: materials.add(Color::BLUE),
         ..default()
     });
 
@@ -65,7 +65,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Mesh::from(primitives::Cuboid::default())),
-            material: materials.add(Color::RED.into()),
+            material: materials.add(Color::RED),
             transform: Transform::from_xyz(-1.0, 0.5, -1.0),
             ..default()
         },
@@ -74,7 +74,7 @@ fn setup(
     // Orange cube: Follows global wireframe setting
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(primitives::Cuboid::default())),
-        material: materials.add(Color::ORANGE.into()),
+        material: materials.add(Color::ORANGE),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
     });
@@ -82,7 +82,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Mesh::from(primitives::Cuboid::default())),
-            material: materials.add(Color::GREEN.into()),
+            material: materials.add(Color::GREEN),
             transform: Transform::from_xyz(1.0, 0.5, 1.0),
             ..default()
         },

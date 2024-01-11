@@ -106,14 +106,13 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(50.0))
-                .into(),
+                .size(Vec2::splat(50.0)),
         ),
         material: forward_mat_h.clone(),
         ..default()
     });
 
-    let cube_h = meshes.add(primitives::Cuboid::from_size(Vec3::splat(0.1)).into());
+    let cube_h = meshes.add(primitives::Cuboid::from_size(Vec3::splat(0.1)));
     let sphere_h = meshes.add(primitives::Sphere { radius: 0.125 }.mesh().uv(36, 18));
 
     // Cubes

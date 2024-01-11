@@ -58,7 +58,7 @@ fn setup_pyramid_scene(
     // pillars
     for (x, z) in &[(-1.5, -1.5), (1.5, -1.5), (1.5, 1.5), (-1.5, 1.5)] {
         commands.spawn(PbrBundle {
-            mesh: meshes.add(primitives::Cuboid::new(1.0, 3.0, 1.0).into()),
+            mesh: meshes.add(primitives::Cuboid::new(1.0, 3.0, 1.0)),
             material: stone.clone(),
             transform: Transform::from_xyz(*x, 1.5, *z),
             ..default()
@@ -68,7 +68,7 @@ fn setup_pyramid_scene(
     // orb
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(primitives::Sphere::default().into()),
+            mesh: meshes.add(primitives::Sphere::default()),
             material: materials.add(StandardMaterial {
                 base_color: Color::hex("126212CC").unwrap(),
                 reflectance: 1.0,

@@ -32,31 +32,31 @@ fn setup(
         mesh: meshes.add(Mesh::from(
             primitives::Plane3d::default().mesh().size(Vec2::splat(5.0)),
         )),
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
         ..default()
     });
     // cubes
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::ONE))),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
         transform: Transform::from_xyz(1.5, 0.5, 1.5),
         ..default()
     });
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::ONE))),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
         transform: Transform::from_xyz(1.5, 0.5, -1.5),
         ..default()
     });
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::ONE))),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
         transform: Transform::from_xyz(-1.5, 0.5, 1.5),
         ..default()
     });
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::ONE))),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        material: materials.add(Color::rgb(0.8, 0.7, 0.6)),
         transform: Transform::from_xyz(-1.5, 0.5, -1.5),
         ..default()
     });

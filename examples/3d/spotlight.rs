@@ -38,17 +38,16 @@ fn setup(
         mesh: meshes.add(
             primitives::Plane3d::default()
                 .mesh()
-                .size(Vec2::splat(100.0))
-                .into(),
+                .size(Vec2::splat(100.0)),
         ),
-        material: materials.add(Color::WHITE.into()),
+        material: materials.add(Color::WHITE),
         ..default()
     });
 
     // cubes
     let mut rng = StdRng::seed_from_u64(19878367467713);
     let cube_mesh = meshes.add(Mesh::from(primitives::Cuboid::from_size(Vec3::splat(0.5))));
-    let blue = materials.add(Color::rgb_u8(124, 144, 255).into());
+    let blue = materials.add(Color::rgb_u8(124, 144, 255));
     for _ in 0..40 {
         let x = rng.gen_range(-5.0..5.0);
         let y = rng.gen_range(0.0..3.0);
