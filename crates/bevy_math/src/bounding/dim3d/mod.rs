@@ -1,5 +1,22 @@
-use super::BoundingVolume;
+mod bounded_impls;
+
+use super::{BoundingVolume, IntersectsVolume};
 use crate::prelude::{Quat, Vec3};
+
+/// Computes the geometric center of the given set of points.
+#[inline(always)]
+fn point_cloud_3d_center<I>(points: I) -> Vec3
+where
+    I: IntoIterator<Item = Vec3> + Clone,
+{
+    let len = points.clone().into_iter().count();
+    assert!(len >= 1, "can not compute the center of less than 1 point");
+
+    let iter = points.into_iter();
+
+    let denom = 1.0 / len as f32;
+    iter.fold(Vec3::ZERO, |acc, point| acc + point * denom)
+}
 
 /// A trait with methods that return 3D bounded volumes for a shape
 pub trait Bounded3d {
@@ -16,6 +33,40 @@ pub struct Aabb3d {
     min: Vec3,
     /// The maximum point of the box
     max: Vec3,
+}
+
+impl Aabb3d {
+    /// Computes the smallest [`Aabb3d`] containing the given set of points,
+    /// transformed by `translation` and `rotation`.
+    #[inline(always)]
+    pub fn from_point_cloud(
+        translation: Vec3,
+        rotation: f32,
+        points: impl IntoIterator<Item = Vec3>,
+    ) -> Aabb3d {
+        // Transform all points by rotation
+        let mut iter = points.into_iter().map(|point| rotation * point);
+
+        let first = iter
+            .next()
+            .expect("point cloud must contain at least one point for Aabb3d construction");
+
+        let (min, max) = iter.fold((first, first), |(prev_min, prev_max), point| {
+            (point.min(prev_min), point.max(prev_max))
+        });
+
+        Aabb3d {
+            min: min + translation,
+            max: max + translation,
+        }
+    }
+
+    /// Computes the smallest [`BoundingSphere`] containing this [`Aabb3d`].
+    #[inline(always)]
+    pub fn bounding_sphere(&self) -> BoundingSphere {
+        let radius = self.min.distance(self.max) / 2.0;
+        BoundingSphere::new(self.center(), radius)
+    }
 }
 
 impl BoundingVolume for Aabb3d {
@@ -74,6 +125,13 @@ impl BoundingVolume for Aabb3d {
         };
         debug_assert!(b.min.x <= b.max.x && b.min.y <= b.max.y && b.min.z <= b.max.z);
         b
+    }
+}
+
+impl IntersectsVolume<Self> for Aabb3d {
+    #[inline]
+    fn intersects(&self, volume: &Self) -> bool {
+        self.min.cmplt(volume.max).all() && self.max.cmpgt(volume.min).all()
     }
 }
 
@@ -195,13 +253,41 @@ pub struct BoundingSphere {
 }
 
 impl BoundingSphere {
-    /// Construct a bounding sphere from its center and radius.
+    /// Construct a bounding sphere from its center and radius
+    #[inline(always)]
     pub fn new(center: Vec3, radius: f32) -> Self {
         debug_assert!(radius >= 0.);
         Self {
             center,
             sphere: Sphere { radius },
         }
+    }
+
+    /// Computes the smallest [`BoundingSphere`] containing the given set of points,
+    /// translated by `translation`.
+    #[inline(always)]
+    pub fn from_point_cloud<I>(translation: Vec3, points: I) -> BoundingSphere
+    where
+        I: IntoIterator<Item = Vec3> + Clone,
+    {
+        let center = point_cloud_3d_center(points.clone());
+        let mut radius_squared = 0.0;
+
+        for point in points.into_iter() {
+            // Get squared version to avoid unnecessary sqrt calls
+            let distance_squared = point.distance_squared(center);
+            if distance_squared > radius_squared {
+                radius_squared = distance_squared;
+            }
+        }
+
+        BoundingSphere::new(center + translation, radius_squared.sqrt())
+    }
+
+    /// Get the radius of the bounding sphere
+    #[inline(always)]
+    pub fn radius(&self) -> f32 {
+        self.sphere.radius
     }
 }
 
@@ -268,6 +354,15 @@ impl BoundingVolume for BoundingSphere {
                 radius: self.half_size() - amount,
             },
         }
+    }
+}
+
+impl IntersectsVolume<Self> for BoundingSphere {
+    #[inline]
+    fn intersects(&self, volume: &Self) -> bool {
+        let delta_center = volume.center - self.center;
+        let distance_squared = delta_center.length_squared();
+        distance_squared <= self.radius() + volume.radius()
     }
 }
 

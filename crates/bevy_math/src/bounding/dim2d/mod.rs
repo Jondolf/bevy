@@ -1,18 +1,18 @@
-mod shapes;
+mod bounded_impls;
 
 use super::{BoundingVolume, IntersectsVolume};
 use crate::prelude::Vec2;
 
 /// Rotates the given vector counterclockwise by an angle in radians.
 #[inline(always)]
-pub fn rotate_vec2(vec: Vec2, rotation: f32) -> Vec2 {
+fn rotate_vec2(vec: Vec2, rotation: f32) -> Vec2 {
     let (sin, cos) = rotation.sin_cos();
     Vec2::new(vec.x * cos - vec.y * sin, vec.x * sin + vec.y * cos)
 }
 
 /// Computes the geometric center of the given set of points.
 #[inline(always)]
-pub fn point_cloud_2d_center<I>(points: I) -> Vec2
+fn point_cloud_2d_center<I>(points: I) -> Vec2
 where
     I: IntoIterator<Item = Vec2> + Clone,
 {
