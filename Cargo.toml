@@ -423,6 +423,17 @@ category = "2D Rendering"
 wasm = true
 
 [[example]]
+name = "2d_bounding_volumes"
+path = "examples/2d/2d_bounding_volumes.rs"
+doc-scrape-examples = true
+
+[package.metadata.example.2d_bounding_volumes]
+name = "2D Bounding Volumes"
+description = "Renders AABBs for 2D shapes"
+category = "2D Rendering"
+wasm = true
+
+[[example]]
 name = "sprite"
 path = "examples/2d/sprite.rs"
 doc-scrape-examples = true
