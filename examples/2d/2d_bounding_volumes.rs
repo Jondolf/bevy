@@ -11,11 +11,11 @@ fn main() {
             Update,
             (
                 (
-                    draw_aabbs::<primitives::Circle>,
-                    draw_aabbs::<primitives::Ellipse>,
-                    draw_aabbs::<primitives::Rectangle>,
-                    draw_aabbs::<primitives::RegularPolygon>,
-                    draw_aabbs::<primitives::Triangle2d>,
+                    draw_bounding_volumes::<primitives::Circle>,
+                    draw_bounding_volumes::<primitives::Ellipse>,
+                    draw_bounding_volumes::<primitives::Rectangle>,
+                    draw_bounding_volumes::<primitives::RegularPolygon>,
+                    draw_bounding_volumes::<primitives::Triangle2d>,
                 ),
                 rotate,
             )
@@ -100,7 +100,7 @@ fn setup(
     ));
 }
 
-fn draw_aabbs<T: Bounded2d + Sync + Send + 'static>(
+fn draw_bounding_volumes<T: Bounded2d + Sync + Send + 'static>(
     query: Query<(&Transform, &Shape<T>)>,
     mut gizmos: Gizmos,
 ) {
@@ -122,8 +122,8 @@ fn draw_aabbs<T: Bounded2d + Sync + Send + 'static>(
     }
 }
 
-fn rotate(mut query: Query<&mut Transform, Without<Camera>>) {
+fn rotate(mut query: Query<&mut Transform, Without<Camera>>, time: Res<Time>) {
     for mut transform in &mut query {
-        transform.rotate_z(0.02);
+        transform.rotate_z(time.delta_seconds() / 2.);
     }
 }

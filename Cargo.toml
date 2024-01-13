@@ -429,7 +429,7 @@ doc-scrape-examples = true
 
 [package.metadata.example.2d_bounding_volumes]
 name = "2D Bounding Volumes"
-description = "Renders AABBs for 2D shapes"
+description = "Renders bounding volumes for 2D shapes"
 category = "2D Rendering"
 wasm = true
 
@@ -573,6 +573,17 @@ doc-scrape-examples = true
 [package.metadata.example.3d_gizmos]
 name = "3D Gizmos"
 description = "A scene showcasing 3D gizmos"
+category = "3D Rendering"
+wasm = true
+
+[[example]]
+name = "3d_bounding_volumes"
+path = "examples/3d/3d_bounding_volumes.rs"
+doc-scrape-examples = true
+
+[package.metadata.example.3d_bounding_volumes]
+name = "2D Bounding Volumes"
+description = "Renders bounding volumes for 2D shapes"
 category = "3D Rendering"
 wasm = true
 
