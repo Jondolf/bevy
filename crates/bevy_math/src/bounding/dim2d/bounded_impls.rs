@@ -22,13 +22,20 @@ impl Bounded2d for Circle {
 
 impl Bounded2d for Ellipse {
     fn aabb_2d(&self, translation: Vec2, rotation: f32) -> Aabb2d {
-        let (sin, cos) = rotation.sin_cos();
-        let ux = self.half_width * cos;
-        let uy = self.half_width * sin;
+        //           V = (hh * cos(beta), hh * sin(beta))
+        //      #####*#####
+        //   ###     |     ###
+        //  #     hh |        #
+        // #         *---------* U = (hw * cos(alpha), hw * sin(alpha))
+        //  #            hw   #
+        //   ###           ###
+        //      ###########
 
-        let (sin, cos) = (rotation + std::f32::consts::FRAC_PI_2).sin_cos();
-        let vx = self.half_height * cos;
-        let vy = self.half_height * sin;
+        let (alpha, beta) = (rotation, rotation + std::f32::consts::FRAC_PI_2);
+        let (hw, hh) = (self.half_width, self.half_height);
+
+        let (ux, uy) = (hw * alpha.cos(), hw * alpha.sin());
+        let (vx, vy) = (hh * beta.cos(), hh * beta.sin());
 
         let half_extents = Vec2::new(ux.hypot(vx), uy.hypot(vy));
 
@@ -153,9 +160,11 @@ impl Bounded2d for Rectangle {
     fn aabb_2d(&self, translation: Vec2, rotation: f32) -> Aabb2d {
         let half_size = Vec2::new(self.half_width, self.half_height);
 
+        // Compute the AABB of the rotated rectangle by transforming the half-extents
+        // by an absolute rotation matrix.
         let (sin, cos) = rotation.sin_cos();
-        let mat = Mat2::from_cols_array(&[cos.abs(), sin.abs(), sin.abs(), cos.abs()]);
-        let half_extents = mat * half_size;
+        let abs_rot_mat = Mat2::from_cols_array(&[cos.abs(), sin.abs(), sin.abs(), cos.abs()]);
+        let half_extents = abs_rot_mat * half_size;
 
         Aabb2d {
             min: translation - half_extents,
@@ -164,13 +173,8 @@ impl Bounded2d for Rectangle {
     }
 
     fn bounding_circle(&self, translation: Vec2, _rotation: f32) -> BoundingCircle {
-        let half_size = Vec2::new(self.half_width, self.half_height);
-        BoundingCircle {
-            center: translation,
-            circle: Circle {
-                radius: half_size.length(),
-            },
-        }
+        let radius = self.half_width.hypot(self.half_height);
+        BoundingCircle::new(translation, radius)
     }
 }
 
