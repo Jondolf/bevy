@@ -5,7 +5,7 @@ use crate::prelude::Vec2;
 
 /// Rotates the given vector counterclockwise by an angle in radians.
 #[inline(always)]
-fn rotate_vec2(vec: Vec2, rotation: f32) -> Vec2 {
+pub(super) fn rotate_vec2(vec: Vec2, rotation: f32) -> Vec2 {
     let (sin, cos) = rotation.sin_cos();
     Vec2::new(vec.x * cos - vec.y * sin, vec.x * sin + vec.y * cos)
 }

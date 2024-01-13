@@ -1,4 +1,4 @@
-use glam::{Mat3, Quat, Vec3};
+use glam::{Mat3, Quat, Vec2, Vec3};
 
 use crate::primitives::{
     BoxedPolyline3d, Capsule, Cone, ConicalFrustum, Cuboid, Cylinder, Direction3d, Line3d, Plane3d,
@@ -114,11 +114,15 @@ impl Bounded3d for BoxedPolyline3d {
 
 impl Bounded3d for Cuboid {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        let abs_rot_mat = Mat3::from_cols_array(
-            &Mat3::from_quat(rotation)
-                .to_cols_array()
-                .map(|col| col.abs()),
+        // Compute the AABB of the rotated cuboid by transforming the half-extents
+        // by an absolute rotation matrix.
+        let rot_mat = Mat3::from_quat(rotation);
+        let abs_rot_mat = Mat3::from_cols(
+            rot_mat.x_axis.abs(),
+            rot_mat.y_axis.abs(),
+            rot_mat.z_axis.abs(),
         );
+
         let half_extents = abs_rot_mat * self.half_extents;
 
         Aabb3d {
@@ -139,21 +143,18 @@ impl Bounded3d for Cuboid {
 
 impl Bounded3d for Cylinder {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        // Get segment from bottom to top
-        let segment = rotation * Vec3::Y * 2.0 * self.half_height;
+        // Reference: http://iquilezles.org/articles/diskbbox/
 
-        // Compute half extents of AABB
-        let length_squared = segment.length_squared();
-        let half_extents = self.radius
-            * Vec3::new(
-                (segment.y.powi(2) + segment.z.powi(2)) / length_squared,
-                (segment.x.powi(2) + segment.z.powi(2)) / length_squared,
-                (segment.x.powi(2) + segment.y.powi(2)) / length_squared,
-            );
+        let top = rotation * Vec3::Y * self.half_height;
+        let bottom = -top;
+        let segment = bottom - top;
+
+        let e = 1.0 - segment * segment / segment.length_squared();
+        let half_extents = self.radius * Vec3::new(e.x.sqrt(), e.y.sqrt(), e.z.sqrt());
 
         Aabb3d {
-            min: translation - half_extents,
-            max: translation + half_extents,
+            min: translation + (top - half_extents).min(bottom - half_extents),
+            max: translation + (top + half_extents).max(bottom + half_extents),
         }
     }
 
@@ -172,6 +173,7 @@ impl Bounded3d for Capsule {
         };
         let (a, b) = (segment.point1(), segment.point2());
 
+        // Expand the line segment by the capsule radius to get the capsule half-extents
         let min = a.min(b) - Vec3::splat(self.radius);
         let max = a.max(b) + Vec3::splat(self.radius);
 
@@ -188,136 +190,136 @@ impl Bounded3d for Capsule {
 
 impl Bounded3d for Cone {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        let mut min = Vec3::ZERO;
-        let mut max = Vec3::ZERO;
-        let mut basis = Vec3::ZERO;
+        // Reference: http://iquilezles.org/articles/diskbbox/
 
-        for dim in 0..3 {
-            basis[dim] = 1.0;
-            max[dim] = cone_local_support_point(*self, basis)[dim];
+        let top = rotation * Vec3::Y * 0.5 * self.height;
+        let bottom = -top;
+        let segment = bottom - top;
 
-            basis[dim] = -1.0;
-            min[dim] = cone_local_support_point(*self, basis)[dim];
-
-            basis[dim] = 0.0;
-        }
+        let e = 1.0 - segment * segment / segment.length_squared();
+        let half_extents = Vec3::new(e.x.sqrt(), e.y.sqrt(), e.z.sqrt());
 
         Aabb3d {
-            min: rotation * min + translation,
-            max: rotation * max + translation,
+            min: translation + top.min(bottom - self.radius * half_extents),
+            max: translation + top.max(bottom + self.radius * half_extents),
         }
     }
 
-    fn bounding_sphere(&self, translation: Vec3, _rotation: Quat) -> BoundingSphere {
-        let radius = (self.radius.powi(2) + (self.height / 2.0).powi(2)).sqrt();
-        BoundingSphere::new(translation, radius)
+    fn bounding_sphere(&self, translation: Vec3, rotation: Quat) -> BoundingSphere {
+        // To compute the bounding sphere, we'll get the circumcenter U and circumradius R
+        // of the circumcircle passing through all three vertices of the triangular
+        // cross-section of the cone.
+        //
+        // Here, we assume the tip A is translated to the origin, which simplifies calculations.
+        //
+        //     A = (0, 0)
+        //         *
+        //        / \
+        //       /   \
+        //      /     \
+        //     /       \
+        //    /         \
+        //   /     U     \
+        //  /             \
+        // *---------------*
+        // B                C
+
+        let b = Vec2::new(-self.radius, -self.height);
+        let c = Vec2::new(self.radius, -self.height);
+        let b_length_sq = b.length_squared();
+        let c_length_sq = c.length_squared();
+
+        // Reference: https://en.wikipedia.org/wiki/Circumcircle#Cartesian_coordinates_2
+        let inv_d = (2.0 * (b.x * c.y - b.y * c.x)).recip();
+        let ux = inv_d * (c.y * b_length_sq - b.y * c_length_sq);
+        let uy = inv_d * (b.x * c_length_sq - c.x * b_length_sq);
+        let u = Vec2::new(ux, uy);
+
+        // Compute true circumcenter and circumradius, adding the tip coordinate so that
+        // A is translated back to its actual coordinate.
+        let circumcenter = u + 0.5 * self.height * Vec2::Y;
+        let circumradius = u.length();
+
+        BoundingSphere::new(
+            translation + rotation * circumcenter.extend(0.0),
+            circumradius,
+        )
     }
-}
-
-/// Computes the local support point of a [`Cone`]. This corresponds
-/// to the farthest point on the cone in the given `direction`.
-fn cone_local_support_point(cone: Cone, direction: Vec3) -> Vec3 {
-    let mut support = direction;
-    let half_height = cone.height / 2.0;
-
-    support.y = 0.0;
-    support = support.normalize();
-
-    if support == Vec3::ZERO || !support.is_finite() {
-        support = Vec3::ZERO;
-        support.y = half_height.copysign(direction.y);
-    } else {
-        support *= cone.radius;
-        support.y = -half_height;
-
-        if direction.dot(support) < direction.y * half_height {
-            support = Vec3::ZERO;
-            support.y = half_height;
-        }
-    }
-
-    support
 }
 
 impl Bounded3d for ConicalFrustum {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        let mut min = Vec3::ZERO;
-        let mut max = Vec3::ZERO;
-        let mut basis = Vec3::ZERO;
+        // Reference: http://iquilezles.org/articles/diskbbox/
 
-        for dim in 0..3 {
-            basis[dim] = 1.0;
-            max[dim] = conical_frustum_local_support_point(*self, basis)[dim];
+        let top = rotation * Vec3::Y * 0.5 * self.height;
+        let bottom = -top;
+        let segment = bottom - top;
 
-            basis[dim] = -1.0;
-            min[dim] = conical_frustum_local_support_point(*self, basis)[dim];
-
-            basis[dim] = 0.0;
-        }
+        let e = 1.0 - segment * segment / segment.length_squared();
+        let half_extents = Vec3::new(e.x.sqrt(), e.y.sqrt(), e.z.sqrt());
 
         Aabb3d {
-            min: rotation * min + translation,
-            max: rotation * max + translation,
+            min: translation
+                + (top - self.radius_top * half_extents)
+                    .min(bottom - self.radius_bottom * half_extents),
+            max: translation
+                + (top + self.radius_top * half_extents)
+                    .max(bottom + self.radius_bottom * half_extents),
         }
     }
 
-    fn bounding_sphere(&self, translation: Vec3, _rotation: Quat) -> BoundingSphere {
-        let max_base_radius = self.radius_top.max(self.radius_bottom);
-        let radius = ((max_base_radius).powi(2) + (self.height / 2.0).powi(2)).sqrt();
-        BoundingSphere::new(translation, radius)
+    fn bounding_sphere(&self, translation: Vec3, rotation: Quat) -> BoundingSphere {
+        let half_height = 0.5 * self.height;
+
+        // To compute the bounding sphere, we'll get the center and radius of the circumcircle
+        // passing through all four vertices of the trapezoidal cross-section of the conical frustum.
+        //
+        // The circumcenter is at the intersection of the bisectors perpendicular to the sides.
+        // For the isosceles trapezoid, the X coordinate is zero at the center, so a single bisector is enough.
+        //
+        //       A
+        //       *-------*
+        //      /    |    \
+        //     /     |     \
+        // AB / \    |    / \
+        //   /     \ | /     \
+        //  /        C        \
+        // *-------------------*
+        // B
+
+        let a = Vec2::new(-self.radius_top, half_height);
+        let b = Vec2::new(-self.radius_bottom, -half_height);
+        let ab = a - b;
+        let ab_midpoint = b + 0.5 * ab;
+
+        // The direction towards the circumcenter is the bisector perpendicular to the side
+        let bisector = -ab.perp().normalize_or_zero();
+
+        // Here we divide the bisector by its X coordinate so that its X becomes 1
+        // and we can reach the center by multiplying by the X distance to the midpoint of AB.
+        let circumcenter = ab_midpoint + ab_midpoint.x.abs() * bisector / bisector.x.abs();
+
+        // The circumcircle passes through all four vertices, so we can pick any of them
+        let circumradius = a.distance(circumcenter);
+
+        BoundingSphere::new(
+            translation + rotation * circumcenter.extend(0.0),
+            circumradius,
+        )
     }
-}
-
-/// Computes the local support point of a [`ConicalFrustum`]. This corresponds
-/// to the farthest point on the frustum in the given `direction`.
-fn conical_frustum_local_support_point(frustum: ConicalFrustum, direction: Vec3) -> Vec3 {
-    let mut support = direction;
-    let half_height = frustum.height / 2.0;
-
-    support.y = 0.0;
-    support = support.normalize();
-
-    if support == Vec3::ZERO || !support.is_finite() {
-        support = Vec3::ZERO;
-        support.y = half_height.copysign(direction.y);
-    } else {
-        support *= frustum.radius_bottom;
-        support.y = -half_height;
-
-        if direction.dot(support) < direction.y * half_height {
-            let cylinder = Cylinder {
-                radius: frustum.radius_top,
-                half_height,
-            };
-            support = cylinder_local_support_point(cylinder, direction);
-            support.y = half_height;
-        }
-    }
-
-    support
-}
-
-/// Computes the local support point of a [`Cylinder`]. This corresponds
-/// to the farthest point on the cylinder in the given `direction`.
-fn cylinder_local_support_point(cylinder: Cylinder, direction: Vec3) -> Vec3 {
-    let mut support = direction;
-
-    support.y = 0.0;
-    support = support.normalize();
-
-    if support != Vec3::ZERO {
-        support *= cylinder.radius;
-    }
-
-    support.y = cylinder.half_height.copysign(direction.y);
-
-    support
 }
 
 impl Bounded3d for Torus {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        let outer_radius = self.outer_radius();
-        let half_extents = rotation * Vec3::new(outer_radius, self.minor_radius, outer_radius);
+        // Compute the AABB of a flat disc with the major radius of the torus.
+        // Reference: http://iquilezles.org/articles/diskbbox/
+        let normal = rotation * Vec3::Y;
+        let e = 1.0 - normal * normal;
+        let disc_half_extents = self.major_radius * Vec3::new(e.x.sqrt(), e.y.sqrt(), e.z.sqrt());
+
+        // Expand the disc by the minor radius to get the torus half extents
+        let half_extents = disc_half_extents + Vec3::splat(self.minor_radius);
+
         Aabb3d {
             min: translation - half_extents,
             max: translation + half_extents,
