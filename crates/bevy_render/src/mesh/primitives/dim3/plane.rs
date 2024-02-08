@@ -16,6 +16,14 @@ pub struct PlaneMeshBuilder {
     pub plane: Plane3d,
     /// Half the size of the plane mesh.
     pub half_size: Vec2,
+    /// The number of subdivisions in the mesh.
+    ///
+    /// Examples:
+    ///
+    /// * 0: The original plane geometry formed by 4 points in the XZ plane.
+    /// * 1: The plane is split by 1 line in the middle on both the X axis and Z axes, resulting in a plane with 4 quads / 8 triangles.
+    /// * 2: The plane is split by 2 lines on both the X and Z axes, subdividing the plane into 3 equal sections along each axis, resulting in a plane with 9 quads / 18 triangles.
+    pub subdivisions: u32,
 }
 
 impl Default for PlaneMeshBuilder {
@@ -23,6 +31,7 @@ impl Default for PlaneMeshBuilder {
         Self {
             plane: Plane3d::default(),
             half_size: Vec2::ONE,
+            subdivisions: 0,
         }
     }
 }
@@ -34,6 +43,7 @@ impl PlaneMeshBuilder {
         Self {
             plane: Plane3d { normal },
             half_size: size / 2.0,
+            subdivisions: 0,
         }
     }
 
@@ -61,25 +71,71 @@ impl PlaneMeshBuilder {
         self
     }
 
+    /// Sets the number of subdivisions for the plane mesh.
+    #[inline]
+    pub fn subdivisions(mut self, subdivisions: u32) -> Self {
+        self.subdivisions = subdivisions;
+        self
+    }
+
     /// Builds a [`Mesh`] based on the configuration in `self`.
     pub fn build(&self) -> Mesh {
-        let rotation = Quat::from_rotation_arc(Vec3::Y, *self.plane.normal);
-        let positions = vec![
-            rotation * Vec3::new(self.half_size.x, 0.0, -self.half_size.y),
-            rotation * Vec3::new(-self.half_size.x, 0.0, -self.half_size.y),
-            rotation * Vec3::new(-self.half_size.x, 0.0, self.half_size.y),
-            rotation * Vec3::new(self.half_size.x, 0.0, self.half_size.y),
-        ];
+        // Split in the X and Z directions if one ever needs asymmetrical subdivision
+        let x_vertex_count = self.subdivisions + 2;
+        let z_vertex_count = self.subdivisions + 2;
+        let num_vertices = (z_vertex_count * x_vertex_count) as usize;
+        let num_indices = ((z_vertex_count - 1) * (x_vertex_count - 1) * 6) as usize;
 
-        let normals = vec![self.plane.normal.to_array(); 4];
-        let uvs = vec![[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
-        let indices = Indices::U32(vec![0, 1, 2, 0, 2, 3]);
+        let mut positions: Vec<[f32; 3]> = Vec::with_capacity(num_vertices);
+        let normals: Vec<[f32; 3]> = vec![self.plane.normal.to_array(); num_vertices];
+        let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(num_vertices);
+        let mut indices: Vec<u32> = Vec::with_capacity(num_indices);
+
+        // The rotation of the plane when a normal pointing towards +Y corresponds to no rotation
+        let rotation = Quat::from_rotation_arc(Vec3::Y, *self.plane.normal);
+
+        // The corner where the first vertex is
+        let start = rotation * -Vec3::new(self.half_size.x, 0.0, self.half_size.y);
+
+        // How much one step is in the X, Y, and Z directions
+        let step = rotation * Vec3::new(2.0 * self.half_size.x, 0.0, 2.0 * self.half_size.y)
+            / (self.subdivisions + 1) as f32;
+
+        // Add vertices.
+        for z in 0..z_vertex_count {
+            for x in 0..x_vertex_count {
+                let (x, z) = (x as f32, z as f32);
+                let tx = x / (x_vertex_count - 1) as f32;
+                let tz = z / (z_vertex_count - 1) as f32;
+                positions.push([
+                    start.x + x * step.x,
+                    start.y + (x + z) * step.y,
+                    start.z + z * step.z,
+                ]);
+                uvs.push([tx, tz]);
+            }
+        }
+
+        // Add indices.
+        for y in 0..z_vertex_count - 1 {
+            for x in 0..x_vertex_count - 1 {
+                let quad = y * x_vertex_count + x;
+                indices.extend_from_slice(&[
+                    quad + x_vertex_count + 1,
+                    quad + 1,
+                    quad + x_vertex_count,
+                    quad,
+                    quad + x_vertex_count,
+                    quad + 1,
+                ]);
+            }
+        }
 
         Mesh::new(
             PrimitiveTopology::TriangleList,
             RenderAssetUsages::default(),
         )
-        .with_inserted_indices(indices)
+        .with_inserted_indices(Indices::U32(indices))
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, positions)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
         .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
