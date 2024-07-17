@@ -186,10 +186,10 @@ where
                     .take(self.segment_count as usize)
                     .for_each(|position| {
                         self.gizmos.primitive_3d(
-                            &Segment3d {
+                            &Segment3d::from_direction_and_length(
                                 direction,
-                                half_length: self.segment_length * 0.5,
-                            },
+                                self.segment_length * 0.5,
+                            ),
                             position,
                             Quat::IDENTITY,
                             self.color,
@@ -251,10 +251,8 @@ where
             return;
         }
 
-        let direction = rotation * *primitive.direction;
-        let start = position - direction * primitive.half_length;
-        let end = position + direction * primitive.half_length;
-        self.line(start, end, color);
+        let segment = primitive.transformed_by(position, rotation);
+        self.line(segment.point1(), segment.point2(), color);
     }
 }
 

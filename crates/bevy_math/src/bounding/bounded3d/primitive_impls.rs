@@ -65,15 +65,16 @@ impl Bounded3d for Line3d {
 
 impl Bounded3d for Segment3d {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        // Rotate the segment by `rotation`
-        let direction = rotation * *self.direction;
-        let half_size = (self.half_length * direction).abs();
+        let segment = self.transformed_by(translation, rotation);
 
-        Aabb3d::new(translation, half_size)
+        Aabb3d {
+            min: (segment.point1().min(segment.point2())).into(),
+            max: (segment.point1().max(segment.point2())).into(),
+        }
     }
 
     fn bounding_sphere(&self, translation: Vec3, _rotation: Quat) -> BoundingSphere {
-        BoundingSphere::new(translation, self.half_length)
+        BoundingSphere::new(translation + self.midpoint(), 0.5 * self.length())
     }
 }
 
@@ -142,13 +143,9 @@ impl Bounded3d for Cylinder {
 
 impl Bounded3d for Capsule3d {
     fn aabb_3d(&self, translation: Vec3, rotation: Quat) -> Aabb3d {
-        // Get the line segment between the hemispheres of the rotated capsule
-        let segment = Segment3d {
-            // Multiplying a normalized vector (Vec3::Y) with a rotation returns a normalized vector.
-            direction: rotation * Dir3::Y,
-            half_length: self.half_length,
-        };
-        let (a, b) = (segment.point1(), segment.point2());
+        // Get the endpoints of the line segment between the hemicircles of the rotated capsule
+        let direction = rotation * Dir3::Y;
+        let (a, b) = (-self.half_length * direction, self.half_length * direction);
 
         // Expand the line segment by the capsule radius to get the capsule half-extents
         let min = a.min(b) - Vec3::splat(self.radius);
@@ -425,8 +422,7 @@ mod tests {
     #[test]
     fn segment() {
         let translation = Vec3::new(2.0, 1.0, 0.0);
-        let segment =
-            Segment3d::from_points(Vec3::new(-1.0, -0.5, 0.0), Vec3::new(1.0, 0.5, 0.0)).0;
+        let segment = Segment3d::new(Vec3::new(-1.0, -0.5, 0.0), Vec3::new(1.0, 0.5, 0.0));
 
         let aabb = segment.aabb_3d(translation, Quat::IDENTITY);
         assert_eq!(aabb.min, Vec3A::new(1.0, 0.5, 0.0));

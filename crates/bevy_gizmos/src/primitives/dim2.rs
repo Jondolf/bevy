@@ -10,7 +10,7 @@ use bevy_math::primitives::{
     CircularSegment, Ellipse, Line2d, Plane2d, Polygon, Polyline2d, Primitive2d, Rectangle,
     RegularPolygon, Rhombus, Segment2d, Triangle2d,
 };
-use bevy_math::{Dir2, Mat2, Vec2};
+use bevy_math::{Dir2, Mat2, Rot2, Vec2};
 
 use crate::prelude::{GizmoConfigGroup, Gizmos};
 
@@ -520,10 +520,7 @@ where
 
         // draw normal of the plane (orthogonal to the plane itself)
         let normal = primitive.normal;
-        let normal_segment = Segment2d {
-            direction: normal,
-            half_length: HALF_MIN_LINE_LEN,
-        };
+        let normal_segment = Segment2d::from_direction_and_length(normal, 2.0 * HALF_MIN_LINE_LEN);
         self.primitive_2d(
             &normal_segment,
             // offset the normal so it starts on the plane line
@@ -558,11 +555,10 @@ where
 {
     gizmos: &'a mut Gizmos<'w, 's, Config, Clear>,
 
-    direction: Dir2,  // Direction of the line segment
-    half_length: f32, // Half-length of the line segment
+    segment: Segment2d,
 
     position: Vec2, // position of the center of the line segment
-    rotation: Mat2, // rotation of the line segment
+    rotation: Rot2, // rotation of the line segment
     color: Color,   // color of the line segment
 
     draw_arrow: bool, // decides whether to draw just a line or an arrow
@@ -596,11 +592,10 @@ where
     ) -> Self::Output<'_> {
         Segment2dBuilder {
             gizmos: self,
-            direction: primitive.direction,
-            half_length: primitive.half_length,
+            segment: *primitive,
 
             position,
-            rotation: Mat2::from_angle(angle),
+            rotation: Rot2::radians(angle),
             color: color.into(),
 
             draw_arrow: Default::default(),
@@ -618,14 +613,13 @@ where
             return;
         }
 
-        let direction = self.rotation * *self.direction;
-        let start = self.position - direction * self.half_length;
-        let end = self.position + direction * self.half_length;
-
+        let segment = self.segment.transformed_by(self.position, self.rotation);
         if self.draw_arrow {
-            self.gizmos.arrow_2d(start, end, self.color);
+            self.gizmos
+                .arrow_2d(segment.point1(), segment.point2(), self.color);
         } else {
-            self.gizmos.line_2d(start, end, self.color);
+            self.gizmos
+                .line_2d(segment.point1(), segment.point2(), self.color);
         }
     }
 }

@@ -189,14 +189,9 @@ const PLANE_3D: Plane3d = Plane3d {
 const LINE2D: Line2d = Line2d { direction: Dir2::X };
 const LINE3D: Line3d = Line3d { direction: Dir3::X };
 
-const SEGMENT_2D: Segment2d = Segment2d {
-    direction: Dir2::X,
-    half_length: BIG_2D,
-};
-const SEGMENT_3D: Segment3d = Segment3d {
-    direction: Dir3::X,
-    half_length: BIG_3D,
-};
+const SEGMENT_2D: Segment2d = Segment2d::new(Vec2::new(-BIG_2D, 0.0), Vec2::new(BIG_2D, 0.0));
+const SEGMENT_3D: Segment3d =
+    Segment3d::new(Vec3::new(-BIG_3D, 0.0, 0.0), Vec3::new(BIG_3D, 0.0, 0.0));
 
 const POLYLINE_2D: Polyline2d<4> = Polyline2d {
     vertices: [

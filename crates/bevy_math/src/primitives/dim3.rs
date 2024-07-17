@@ -1,7 +1,7 @@
 use std::f32::consts::{FRAC_PI_3, PI};
 
 use super::{Circle, Measured2d, Measured3d, Primitive2d, Primitive3d};
-use crate::{Dir3, InvalidDirectionError, Mat3, Vec2, Vec3};
+use crate::{Dir3, InvalidDirectionError, Mat3, Quat, Ray3d, Vec2, Vec3};
 
 #[cfg(feature = "bevy_reflect")]
 use bevy_reflect::{std_traits::ReflectDefault, Reflect};
@@ -232,8 +232,7 @@ pub struct Line3d {
 }
 impl Primitive3d for Line3d {}
 
-/// A segment of a line going through the origin along a direction in 3D space.
-#[doc(alias = "LineSegment3d")]
+/// A line segment defined by two endpoints in 3D space.
 #[derive(Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "bevy_reflect", derive(Reflect), reflect(Debug, PartialEq))]
@@ -241,52 +240,136 @@ impl Primitive3d for Line3d {}
     all(feature = "serialize", feature = "bevy_reflect"),
     reflect(Serialize, Deserialize)
 )]
+#[doc(alias = "LineSegment3d")]
 pub struct Segment3d {
-    /// The direction of the line
-    pub direction: Dir3,
-    /// Half the length of the line segment. The segment extends by this amount in both
-    /// the given direction and its opposite direction
-    pub half_length: f32,
+    /// The endpoints of the line segment.
+    pub vertices: [Vec3; 2],
 }
 impl Primitive3d for Segment3d {}
 
 impl Segment3d {
-    /// Create a new `Segment3d` from a direction and full length of the segment
+    /// Create a new `Segment3d` from its endpoints `a` and `b`.
     #[inline(always)]
-    pub fn new(direction: Dir3, length: f32) -> Self {
+    pub const fn new(a: Vec3, b: Vec3) -> Self {
+        Self { vertices: [a, b] }
+    }
+    /// Create a new `Segment3d` from its direction and length.
+    ///
+    /// The endpoints will be at `-direction * length / 2.0` and `direction * length / 2.0`.
+    #[inline(always)]
+    pub fn from_direction_and_length(direction: Dir3, length: f32) -> Self {
+        let endpoint = 0.5 * length * direction;
         Self {
-            direction,
-            half_length: length / 2.0,
+            vertices: [-endpoint, endpoint],
         }
     }
 
-    /// Create a new `Segment3d` from its endpoints and compute its geometric center
+    /// Create a new `Segment2d` from a vector representing the direction and length of the line segment.
+    ///
+    /// The endpoints will be at `-scaled_direction / 2.0` and `scaled_direction / 2.0`.
+    #[inline(always)]
+    pub fn from_scaled_direction(scaled_direction: Dir3) -> Self {
+        let endpoint = 0.5 * scaled_direction;
+        Self {
+            vertices: [-endpoint, endpoint],
+        }
+    }
+
+    /// Create a new `Segment2d` starting from the origin of the given `ray`,
+    /// going in the direction of the ray for the given `length`.
+    ///
+    /// The endpoints will be at `ray.origin` and `ray.origin + length * ray.direction`.
+    #[inline(always)]
+    pub fn from_ray_and_length(ray: Ray3d, length: f32) -> Self {
+        Self {
+            vertices: [ray.origin, ray.get_point(length)],
+        }
+    }
+
+    /// Get the position of the first point on the line segment.
+    #[inline(always)]
+    pub fn point1(&self) -> Vec3 {
+        self.vertices[0]
+    }
+
+    /// Get the position of the second point on the line segment.
+    #[inline(always)]
+    pub fn point2(&self) -> Vec3 {
+        self.vertices[1]
+    }
+
+    /// Compute the length of the line segment.
+    #[inline(always)]
+    pub fn length(&self) -> f32 {
+        self.point1().distance(self.point2())
+    }
+
+    /// Compute the squared length of the line segment.
+    #[inline(always)]
+    pub fn length_squared(&self) -> f32 {
+        self.point1().distance_squared(self.point2())
+    }
+
+    /// Compute the normalized direction pointing from the first endpoint to the second endpoint.
+    ///
+    /// For the non-panicking version, see [`Segment2d::try_direction`].
     ///
     /// # Panics
     ///
-    /// Panics if `point1 == point2`
+    /// Panics if a valid direction could not be computed, for example when the endpoints are coincident, NaN, or infinite.
     #[inline(always)]
-    pub fn from_points(point1: Vec3, point2: Vec3) -> (Self, Vec3) {
-        let diff = point2 - point1;
-        let length = diff.length();
+    pub fn direction(&self) -> Dir3 {
+        self.try_direction().unwrap_or_else(|err| {
+            panic!("Failed to compute the direction of a line segment: {err}")
+        })
+    }
 
-        (
-            // We are dividing by the length here, so the vector is normalized.
-            Self::new(Dir3::new_unchecked(diff / length), length),
-            (point1 + point2) / 2.,
+    /// Try to compute the normalized direction pointing from the first endpoint to the second endpoint.
+    ///
+    /// Returns [`Err(InvalidDirectionError)`](InvalidDirectionError) if a valid direction could not be computed,
+    /// for example when the endpoints are coincident, NaN, or infinite.
+    #[inline(always)]
+    pub fn try_direction(&self) -> Result<Dir3, InvalidDirectionError> {
+        Dir3::new(self.scaled_direction())
+    }
+
+    /// Compute the vector from the first endpoint to the second endpoint.
+    #[inline(always)]
+    pub fn scaled_direction(&self) -> Vec3 {
+        self.point2() - self.point1()
+    }
+
+    /// Compute the midpoint between the two endpoints of the line segment.
+    #[inline(always)]
+    pub fn midpoint(&self) -> Vec3 {
+        self.point1().midpoint(self.point2())
+    }
+
+    /// Swaps the two vertices of the line segment.
+    #[inline(always)]
+    pub fn swap(&mut self) {
+        let [ref mut a, ref mut b] = &mut self.vertices;
+        std::mem::swap(a, b);
+    }
+
+    /// Transforms the line segment by applying the given rotation and translation to its endpoints.
+    /// The points are rotated relative to the origin.
+    #[inline(always)]
+    pub fn transformed_by(&self, translation: Vec3, rotation: impl Into<Quat>) -> Self {
+        let rotation = rotation.into();
+        Self::new(
+            translation + rotation * self.point1(),
+            translation + rotation * self.point2(),
         )
     }
 
-    /// Get the position of the first point on the line segment
+    /// Transforms the line segment by applying the given rotation and translation to its endpoints.
+    /// The points are rotated relative to the origin.
     #[inline(always)]
-    pub fn point1(&self) -> Vec3 {
-        *self.direction * -self.half_length
-    }
-
-    /// Get the position of the second point on the line segment
-    #[inline(always)]
-    pub fn point2(&self) -> Vec3 {
-        *self.direction * self.half_length
+    pub fn transform_by(&mut self, translation: Vec3, rotation: impl Into<Quat>) {
+        let rotation = rotation.into();
+        self.vertices[0] = translation + rotation * self.point1();
+        self.vertices[1] = translation + rotation * self.point2();
     }
 }
 

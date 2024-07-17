@@ -241,14 +241,16 @@ impl Bounded2d for Segment2d {
     fn aabb_2d(&self, translation: Vec2, rotation: impl Into<Rot2>) -> Aabb2d {
         // Rotate the segment by `rotation`
         let rotation: Rot2 = rotation.into();
-        let direction = rotation * *self.direction;
-        let half_size = (self.half_length * direction).abs();
+        let segment = self.transformed_by(translation, rotation);
 
-        Aabb2d::new(translation, half_size)
+        Aabb2d {
+            min: segment.point1().min(segment.point2()),
+            max: segment.point1().max(segment.point2()),
+        }
     }
 
     fn bounding_circle(&self, translation: Vec2, _rotation: impl Into<Rot2>) -> BoundingCircle {
-        BoundingCircle::new(translation, self.half_length)
+        BoundingCircle::new(translation + self.midpoint(), 0.5 * self.length())
     }
 }
 
@@ -307,8 +309,8 @@ impl Bounded2d for Triangle2d {
         if let Some((point1, point2)) = side_opposite_to_non_acute {
             // The triangle is obtuse or right, so the minimum bounding circle's diameter is equal to the longest side.
             // We can compute the minimum bounding circle from the line segment of the longest side.
-            let (segment, center) = Segment2d::from_points(point1, point2);
-            segment.bounding_circle(rotation * center + translation, rotation)
+            let segment = Segment2d::new(point1, point2);
+            segment.bounding_circle(rotation * segment.midpoint() + translation, rotation)
         } else {
             // The triangle is acute, so the smallest bounding circle is the circumcircle.
             let (Circle { radius }, circumcenter) = self.circumcircle();
@@ -383,13 +385,9 @@ impl Bounded2d for Capsule2d {
     fn aabb_2d(&self, translation: Vec2, rotation: impl Into<Rot2>) -> Aabb2d {
         let rotation: Rot2 = rotation.into();
 
-        // Get the line segment between the hemicircles of the rotated capsule
-        let segment = Segment2d {
-            // Multiplying a normalized vector (Vec2::Y) with a rotation returns a normalized vector.
-            direction: rotation * Dir2::Y,
-            half_length: self.half_length,
-        };
-        let (a, b) = (segment.point1(), segment.point2());
+        // Get the endpoints of the line segment between the hemicircles of the rotated capsule
+        let direction = rotation * Dir2::Y;
+        let (a, b) = (-self.half_length * direction, self.half_length * direction);
 
         // Expand the line segment by the capsule radius to get the capsule half-extents
         let min = a.min(b) - Vec2::splat(self.radius);
@@ -826,7 +824,7 @@ mod tests {
     #[test]
     fn segment() {
         let translation = Vec2::new(2.0, 1.0);
-        let segment = Segment2d::from_points(Vec2::new(-1.0, -0.5), Vec2::new(1.0, 0.5)).0;
+        let segment = Segment2d::new(Vec2::new(-1.0, -0.5), Vec2::new(1.0, 0.5));
 
         let aabb = segment.aabb_2d(translation, 0.0);
         assert_eq!(aabb.min, Vec2::new(1.0, 0.5));
