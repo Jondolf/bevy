@@ -3,7 +3,7 @@
 use bevy::{
     core_pipeline::experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     pbr::{
-        ScreenSpaceAmbientOcclusionBundle, ScreenSpaceAmbientOcclusionQualityLevel,
+        MeshMaterial3d, ScreenSpaceAmbientOcclusionBundle, ScreenSpaceAmbientOcclusionQualityLevel,
         ScreenSpaceAmbientOcclusionSettings,
     },
     prelude::*,
@@ -41,7 +41,7 @@ fn setup(
         .insert(ScreenSpaceAmbientOcclusionBundle::default())
         .insert(TemporalAntiAliasBundle::default());
 
-    let material = materials.add(StandardMaterial {
+    let material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::srgb(0.5, 0.5, 0.5),
         perceptual_roughness: 1.0,
         reflectance: 0.0,
@@ -49,36 +49,34 @@ fn setup(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: material.clone().into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: material.clone(),
         },
         Transform::from_xyz(0.0, 0.0, 1.0),
     ));
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: material.clone().into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: material.clone(),
         },
         Transform::from_xyz(0.0, -1.0, 0.0),
     ));
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: material.into(),
+            mesh: meshes.add(Cuboid::default()),
+            material,
         },
         Transform::from_xyz(1.0, 0.0, 0.0),
     ));
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::new(0.4).mesh().uv(72, 36)).into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::srgb(0.4, 0.4, 0.4),
-                    perceptual_roughness: 1.0,
-                    reflectance: 0.0,
-                    ..default()
-                })
-                .into(),
+            mesh: meshes.add(Sphere::new(0.4).mesh().uv(72, 36)),
+            material: materials.add(StandardMaterial {
+                base_color: Color::srgb(0.4, 0.4, 0.4),
+                perceptual_roughness: 1.0,
+                reflectance: 0.0,
+                ..default()
+            }),
         },
         SphereMarker,
     ));

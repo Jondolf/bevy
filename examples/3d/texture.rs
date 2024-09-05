@@ -2,7 +2,7 @@
 
 use std::f32::consts::PI;
 
-use bevy::prelude::*;
+use bevy::{pbr::Mesh3d, prelude::*};
 
 fn main() {
     App::new()
@@ -24,7 +24,7 @@ fn setup(
 
     // create a new quad mesh. this is what we will apply the texture to
     let quad_width = 8.0;
-    let quad_handle = meshes.add(Rectangle::new(quad_width, quad_width * aspect));
+    let quad_handle: Mesh3d = meshes.add(Rectangle::new(quad_width, quad_width * aspect));
 
     // this material renders the texture normally
     let material_handle = materials.add(StandardMaterial {
@@ -55,24 +55,24 @@ fn setup(
     // textured quad - normal
     commands.spawn((
         PbrBundle {
-            mesh: quad_handle.clone().into(),
-            material: material_handle.into(),
+            mesh: quad_handle.clone(),
+            material: material_handle,
         },
         Transform::from_xyz(0.0, 0.0, 1.5).with_rotation(Quat::from_rotation_x(-PI / 5.0)),
     ));
     // textured quad - modulated
     commands.spawn((
         PbrBundle {
-            mesh: quad_handle.clone().into(),
-            material: red_material_handle.into(),
+            mesh: quad_handle.clone(),
+            material: red_material_handle,
         },
         Transform::from_rotation(Quat::from_rotation_x(-PI / 5.0)),
     ));
     // textured quad - modulated
     commands.spawn((
         PbrBundle {
-            mesh: quad_handle.into(),
-            material: blue_material_handle.into(),
+            mesh: quad_handle,
+            material: blue_material_handle,
         },
         Transform::from_xyz(0.0, 0.0, -1.5).with_rotation(Quat::from_rotation_x(-PI / 5.0)),
     ));

@@ -4,7 +4,7 @@ use std::f32::consts::*;
 
 use bevy::{
     color::palettes::basic::{MAROON, RED},
-    pbr::NotShadowCaster,
+    pbr::{Mesh3d, MeshMaterial3d, NotShadowCaster},
     prelude::*,
 };
 use rand::{Rng, SeedableRng};
@@ -41,10 +41,8 @@ fn setup(
     // ground plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(100.0, 100.0))
-                .into(),
-            material: materials.add(Color::WHITE).into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(100.0, 100.0)),
+            material: materials.add(Color::WHITE),
         },
         Movable,
     ));
@@ -54,8 +52,8 @@ fn setup(
     // We're seeding the PRNG here to make this example deterministic for testing purposes.
     // This isn't strictly required in practical use unless you need your app to be deterministic.
     let mut rng = ChaCha8Rng::seed_from_u64(19878367467713);
-    let cube_mesh = meshes.add(Cuboid::new(0.5, 0.5, 0.5));
-    let blue = materials.add(Color::srgb_u8(124, 144, 255));
+    let cube_mesh: Mesh3d = meshes.add(Cuboid::new(0.5, 0.5, 0.5));
+    let blue: MeshMaterial3d<StandardMaterial> = materials.add(Color::srgb_u8(124, 144, 255));
 
     commands.spawn_batch(
         std::iter::repeat_with(move || {
@@ -65,8 +63,8 @@ fn setup(
 
             (
                 PbrBundle {
-                    mesh: cube_mesh.clone().into(),
-                    material: blue.clone().into(),
+                    mesh: cube_mesh.clone(),
+                    material: blue.clone(),
                 },
                 Transform::from_xyz(x, y, z),
                 Movable,
@@ -75,14 +73,14 @@ fn setup(
         .take(40),
     );
 
-    let sphere_mesh = meshes.add(Sphere::new(0.05).mesh().uv(32, 18));
-    let sphere_mesh_direction = meshes.add(Sphere::new(0.1).mesh().uv(32, 18));
-    let red_emissive = materials.add(StandardMaterial {
+    let sphere_mesh: Mesh3d = meshes.add(Sphere::new(0.05).mesh().uv(32, 18));
+    let sphere_mesh_direction: Mesh3d = meshes.add(Sphere::new(0.1).mesh().uv(32, 18));
+    let red_emissive: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: RED.into(),
         emissive: LinearRgba::new(1.0, 0.0, 0.0, 0.0),
         ..default()
     });
-    let maroon_emissive = materials.add(StandardMaterial {
+    let maroon_emissive: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: MAROON.into(),
         emissive: LinearRgba::new(0.369, 0.0, 0.0, 0.0),
         ..default()
@@ -109,13 +107,13 @@ fn setup(
                 })
                 .with_children(|builder| {
                     builder.spawn(PbrBundle {
-                        mesh: sphere_mesh.clone().into(),
-                        material: red_emissive.clone().into(),
+                        mesh: sphere_mesh.clone(),
+                        material: red_emissive.clone(),
                     });
                     builder.spawn((
                         PbrBundle {
-                            mesh: sphere_mesh_direction.clone().into(),
-                            material: maroon_emissive.clone().into(),
+                            mesh: sphere_mesh_direction.clone(),
+                            material: maroon_emissive.clone(),
                         },
                         Transform::from_translation(Vec3::Z * -0.1),
                         NotShadowCaster,

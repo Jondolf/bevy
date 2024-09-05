@@ -17,6 +17,7 @@ use bevy::{
         Skybox,
     },
     math::{cubic_splines::LinearSpline, primitives::Plane3d, vec2},
+    pbr::Mesh3d,
     prelude::*,
 };
 
@@ -71,7 +72,7 @@ fn setup(
         basic_metering_mask: metering_mask.clone(),
     });
 
-    let plane = meshes.add(Mesh::from(
+    let plane: Mesh3d = meshes.add(Mesh::from(
         Plane3d {
             normal: -Dir3::Z,
             half_size: Vec2::new(2.0, 0.5),
@@ -90,17 +91,15 @@ fn setup(
 
             commands.spawn((
                 PbrBundle {
-                    mesh: plane.clone().into(),
-                    material: materials
-                        .add(StandardMaterial {
-                            base_color: Color::srgb(
-                                0.5 + side.x * 0.5,
-                                0.75 - level as f32 * 0.25,
-                                0.5 + side.z * 0.5,
-                            ),
-                            ..default()
-                        })
-                        .into(),
+                    mesh: plane.clone(),
+                    material: materials.add(StandardMaterial {
+                        base_color: Color::srgb(
+                            0.5 + side.x * 0.5,
+                            0.75 - level as f32 * 0.25,
+                            0.5 + side.z * 0.5,
+                        ),
+                        ..default()
+                    }),
                 },
                 Transform::from_translation(side * 2.0 + height),
             ));

@@ -12,7 +12,7 @@ use bevy::{
         fxaa::{Fxaa, Sensitivity},
         smaa::{SmaaPreset, SmaaSettings},
     },
-    pbr::CascadeShadowConfigBuilder,
+    pbr::{CascadeShadowConfigBuilder, MeshMaterial3d},
     prelude::*,
     render::{
         render_asset::RenderAssetUsages,
@@ -257,13 +257,11 @@ fn setup(
 ) {
     // Plane
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(50.0, 50.0))
-            .into(),
-        material: materials.add(Color::srgb(0.1, 0.2, 0.1)).into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+        material: materials.add(Color::srgb(0.1, 0.2, 0.1)),
     });
 
-    let cube_material = materials.add(StandardMaterial {
+    let cube_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color_texture: Some(images.add(uv_debug_texture())),
         ..default()
     });
@@ -272,8 +270,8 @@ fn setup(
     for i in 0..5 {
         commands.spawn((
             PbrBundle {
-                mesh: meshes.add(Cuboid::new(0.25, 0.25, 0.25)).into(),
-                material: cube_material.clone().into(),
+                mesh: meshes.add(Cuboid::new(0.25, 0.25, 0.25)),
+                material: cube_material.clone(),
             },
             Transform::from_xyz(i as f32 * 0.25 - 1.0, 0.125, -i as f32 * 0.5),
         ));

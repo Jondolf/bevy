@@ -1,6 +1,6 @@
 //! Shows how to iterate over combinations of query results.
 
-use bevy::{color::palettes::css::ORANGE_RED, prelude::*};
+use bevy::{color::palettes::css::ORANGE_RED, pbr::Mesh3d, prelude::*};
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
@@ -40,7 +40,7 @@ fn generate_bodies(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let mesh = meshes.add(Sphere::new(1.0).mesh().ico(3).unwrap());
+    let mesh: Mesh3d = meshes.add(Sphere::new(1.0).mesh().ico(3).unwrap());
 
     let color_range = 0.5..1.0;
     let vel_range = -0.5..0.5;
@@ -64,14 +64,12 @@ fn generate_bodies(
         commands.spawn((
             BodyBundle {
                 pbr: PbrBundle {
-                    mesh: mesh.clone().into(),
-                    material: materials
-                        .add(Color::srgb(
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                        ))
-                        .into(),
+                    mesh: mesh.clone(),
+                    material: materials.add(Color::srgb(
+                        rng.gen_range(color_range.clone()),
+                        rng.gen_range(color_range.clone()),
+                        rng.gen_range(color_range.clone()),
+                    )),
                 },
                 mass: Mass(mass_value),
                 acceleration: Acceleration(Vec3::ZERO),
@@ -98,14 +96,12 @@ fn generate_bodies(
         .spawn((
             BodyBundle {
                 pbr: PbrBundle {
-                    mesh: meshes.add(Sphere::new(1.0).mesh().ico(5).unwrap()).into(),
-                    material: materials
-                        .add(StandardMaterial {
-                            base_color: ORANGE_RED.into(),
-                            emissive: LinearRgba::from(ORANGE_RED) * 2.,
-                            ..default()
-                        })
-                        .into(),
+                    mesh: meshes.add(Sphere::new(1.0).mesh().ico(5).unwrap()),
+                    material: materials.add(StandardMaterial {
+                        base_color: ORANGE_RED.into(),
+                        emissive: LinearRgba::from(ORANGE_RED) * 2.,
+                        ..default()
+                    }),
                 },
                 mass: Mass(500.0),
                 ..default()
@@ -113,16 +109,14 @@ fn generate_bodies(
             Transform::from_scale(Vec3::splat(star_radius)),
             Star,
         ))
-        .with_children(|p| {
-            p.spawn(PointLightBundle {
-                point_light: PointLight {
-                    color: Color::WHITE,
-                    range: 100.0,
-                    radius: star_radius,
-                    ..default()
-                },
+        .with_child(PointLightBundle {
+            point_light: PointLight {
+                color: Color::WHITE,
+                range: 100.0,
+                radius: star_radius,
                 ..default()
-            });
+            },
+            ..default()
         });
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(0.0, 10.5, -30.0).looking_at(Vec3::ZERO, Vec3::Y),

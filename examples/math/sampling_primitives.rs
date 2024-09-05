@@ -6,6 +6,7 @@ use bevy::{
     core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping},
     input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseButtonInput},
     math::prelude::*,
+    pbr::MeshMaterial3d,
     prelude::*,
 };
 use rand::seq::SliceRandom;
@@ -285,22 +286,18 @@ fn setup(
     // Make a plane for establishing space.
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(20.0, 20.0))
-                .into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::srgb(0.3, 0.5, 0.3),
-                    perceptual_roughness: 0.95,
-                    metallic: 0.0,
-                    ..default()
-                })
-                .into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(20.0, 20.0)),
+            material: materials.add(StandardMaterial {
+                base_color: Color::srgb(0.3, 0.5, 0.3),
+                perceptual_roughness: 0.95,
+                metallic: 0.0,
+                ..default()
+            }),
         },
         Transform::from_xyz(0.0, -2.5, 0.0),
     ));
 
-    let shape_material = materials.add(StandardMaterial {
+    let shape_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::srgba(0.2, 0.1, 0.6, 0.3),
         reflectance: 0.0,
         alpha_mode: AlphaMode::Blend,
@@ -313,8 +310,8 @@ fn setup(
         // The sampled shape shown transparently:
         commands.spawn((
             PbrBundle {
-                mesh: meshes.add(shape.mesh()).into(),
-                material: shape_material.clone().into(),
+                mesh: meshes.add(shape.mesh()),
+                material: shape_material.clone(),
             },
             Transform::from_translation(*translation),
         ));

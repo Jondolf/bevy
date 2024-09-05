@@ -55,7 +55,7 @@ fn setup(
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2d(mesh),
-            material: materials.add(CustomMaterial {}).into(),
+            material: materials.add(CustomMaterial {}),
         },
         Transform::from_scale(150.0 * Vec3::ONE),
     ));

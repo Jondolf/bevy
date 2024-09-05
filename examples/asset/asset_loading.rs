@@ -1,6 +1,6 @@
 //! This example illustrates various ways to load assets.
 
-use bevy::{asset::LoadedFolder, prelude::*};
+use bevy::{asset::LoadedFolder, pbr::MeshMaterial3d, prelude::*};
 
 fn main() {
     App::new()
@@ -70,7 +70,7 @@ fn setup(
     );
 
     // You can also add assets directly to their Assets<T> storage:
-    let material_handle = materials.add(StandardMaterial {
+    let material_handle: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::srgb(0.8, 0.7, 0.6),
         ..default()
     });
@@ -79,7 +79,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: torus_handle.into(),
-            material: material_handle.clone().into(),
+            material: material_handle.clone(),
         },
         Transform::from_xyz(-3.0, 0.0, 0.0),
     ));
@@ -87,7 +87,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: cube_handle.into(),
-            material: material_handle.clone().into(),
+            material: material_handle.clone(),
         },
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
@@ -95,7 +95,7 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: sphere_handle.into(),
-            material: material_handle.into(),
+            material: material_handle,
         },
         Transform::from_xyz(3.0, 0.0, 0.0),
     ));

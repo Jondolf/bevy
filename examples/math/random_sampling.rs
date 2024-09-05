@@ -60,10 +60,8 @@ fn setup(
     // Make a plane for establishing space.
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(12.0, 12.0))
-                .into(),
-            material: materials.add(Color::srgb(0.3, 0.5, 0.3)).into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(12.0, 12.0)),
+            material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
         },
         Transform::from_xyz(0.0, -2.5, 0.0),
     ));
@@ -74,15 +72,13 @@ fn setup(
 
     // The sampled shape shown transparently:
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape).into(),
-        material: materials
-            .add(StandardMaterial {
-                base_color: Color::srgba(0.2, 0.1, 0.6, 0.3),
-                alpha_mode: AlphaMode::Blend,
-                cull_mode: None,
-                ..default()
-            })
-            .into(),
+        mesh: meshes.add(shape),
+        material: materials.add(StandardMaterial {
+            base_color: Color::srgba(0.2, 0.1, 0.6, 0.3),
+            alpha_mode: AlphaMode::Blend,
+            cull_mode: None,
+            ..default()
+        }),
     });
 
     // A light:

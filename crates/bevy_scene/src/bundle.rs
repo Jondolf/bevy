@@ -103,7 +103,7 @@ pub fn scene_spawner(
 mod tests {
     use crate::{DynamicScene, DynamicSceneBundle, ScenePlugin, SceneSpawner};
     use bevy_app::{App, ScheduleRunnerPlugin};
-    use bevy_asset::{AssetPlugin, Assets};
+    use bevy_asset::{AssetPlugin, Assets, Handle};
     use bevy_ecs::component::Component;
     use bevy_ecs::entity::Entity;
     use bevy_ecs::prelude::{AppTypeRegistry, ReflectComponent, World};
@@ -136,7 +136,7 @@ mod tests {
         scene_world.insert_resource(type_registry);
         scene_world.spawn(ComponentA { x: 3.0, y: 4.0 });
         let scene = DynamicScene::from_world(&scene_world);
-        let scene_handle = app
+        let scene_handle: Handle<DynamicScene> = app
             .world_mut()
             .resource_mut::<Assets<DynamicScene>>()
             .add(scene);

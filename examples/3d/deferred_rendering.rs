@@ -8,8 +8,8 @@ use bevy::{
         prepass::{DeferredPrepass, DepthPrepass, MotionVectorPrepass, NormalPrepass},
     },
     pbr::{
-        CascadeShadowConfigBuilder, DefaultOpaqueRendererMethod, DirectionalLightShadowMap,
-        NotShadowCaster, NotShadowReceiver, OpaqueRendererMethod,
+        CascadeShadowConfigBuilder, DefaultOpaqueRendererMethod, DirectionalLightShadowMap, Mesh3d,
+        MeshMaterial3d, NotShadowCaster, NotShadowReceiver, OpaqueRendererMethod,
     },
     prelude::*,
     render::texture::ImageLoaderSettings,
@@ -97,31 +97,29 @@ fn setup(
 
     let mut forward_mat: StandardMaterial = Color::srgb(0.1, 0.2, 0.1).into();
     forward_mat.opaque_render_method = OpaqueRendererMethod::Forward;
-    let forward_mat_h = materials.add(forward_mat);
+    let forward_mat_h: MeshMaterial3d<StandardMaterial> = materials.add(forward_mat);
 
     // Plane
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(50.0, 50.0))
-            .into(),
-        material: forward_mat_h.clone().into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+        material: forward_mat_h.clone(),
     });
 
-    let cube_h = meshes.add(Cuboid::new(0.1, 0.1, 0.1));
-    let sphere_h = meshes.add(Sphere::new(0.125).mesh().uv(32, 18));
+    let cube_h: Mesh3d = meshes.add(Cuboid::new(0.1, 0.1, 0.1));
+    let sphere_h: Mesh3d = meshes.add(Sphere::new(0.125).mesh().uv(32, 18));
 
     // Cubes
     commands.spawn((
         PbrBundle {
-            mesh: cube_h.clone().into(),
-            material: forward_mat_h.clone().into(),
+            mesh: cube_h.clone(),
+            material: forward_mat_h.clone(),
         },
         Transform::from_xyz(-0.3, 0.5, -0.2),
     ));
     commands.spawn((
         PbrBundle {
-            mesh: cube_h.into(),
-            material: forward_mat_h.into(),
+            mesh: cube_h,
+            material: forward_mat_h,
         },
         Transform::from_xyz(0.2, 0.5, 0.2),
     ));
@@ -133,8 +131,8 @@ fn setup(
     unlit_mat.unlit = true;
     commands.spawn((
         PbrBundle {
-            mesh: sphere_h.clone().into(),
-            material: materials.add(unlit_mat).into(),
+            mesh: sphere_h.clone(),
+            material: materials.add(unlit_mat),
         },
         sphere_pos,
         NotShadowCaster,
@@ -156,7 +154,7 @@ fn setup(
     for i in 0..6 {
         let j = i % 3;
         let s_val = if i < 3 { 0.0 } else { 0.2 };
-        let material = if j == 0 {
+        let material: MeshMaterial3d<StandardMaterial> = if j == 0 {
             materials.add(StandardMaterial {
                 base_color: Color::srgb(s_val, s_val, 1.0),
                 perceptual_roughness: 0.089,
@@ -180,8 +178,8 @@ fn setup(
         };
         commands.spawn((
             PbrBundle {
-                mesh: sphere_h.clone().into(),
-                material: material.into(),
+                mesh: sphere_h.clone(),
+                material,
             },
             Transform::from_xyz(
                 j as f32 * 0.25 + if i < 3 { -0.15 } else { 0.15 } - 0.4,
@@ -194,15 +192,13 @@ fn setup(
     // sky
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::new(2.0, 1.0, 1.0)).into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Srgba::hex("888888").unwrap().into(),
-                    unlit: true,
-                    cull_mode: None,
-                    ..default()
-                })
-                .into(),
+            mesh: meshes.add(Cuboid::new(2.0, 1.0, 1.0)),
+            material: materials.add(StandardMaterial {
+                base_color: Srgba::hex("888888").unwrap().into(),
+                unlit: true,
+                cull_mode: None,
+                ..default()
+            }),
         },
         Transform::from_scale(Vec3::splat(1_000_000.0)),
         NotShadowCaster,
@@ -272,8 +268,8 @@ fn setup_parallax(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(cube).into(),
-            material: parallax_material.into(),
+            mesh: meshes.add(cube),
+            material: parallax_material,
         },
         Transform::from_xyz(0.4, 0.2, -0.8),
         Spin { speed: 0.3 },

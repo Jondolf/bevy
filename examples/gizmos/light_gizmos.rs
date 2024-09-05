@@ -4,6 +4,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 use bevy::{
     color::palettes::css::{DARK_CYAN, GOLD, GRAY, PURPLE},
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
 };
 
@@ -44,21 +45,22 @@ fn setup(
     // Circular base.
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Circle::new(4.0)).into(),
-            material: materials.add(Color::WHITE).into(),
+            mesh: meshes.add(Circle::new(4.0)),
+            material: materials.add(Color::WHITE),
         },
         Transform::from_rotation(Quat::from_rotation_x(-FRAC_PI_2)),
     ));
 
     // Cubes.
     {
-        let mesh = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-        let material = materials.add(Color::srgb_u8(124, 144, 255));
+        let mesh: Mesh3d = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+        let material: MeshMaterial3d<StandardMaterial> =
+            materials.add(Color::srgb_u8(124, 144, 255));
         for x in [-2.0, 0.0, 2.0] {
             commands.spawn((
                 PbrBundle {
-                    mesh: mesh.clone().into(),
-                    material: material.clone().into(),
+                    mesh: mesh.clone(),
+                    material: material.clone(),
                 },
                 Transform::from_xyz(x, 0.5, 0.0),
             ));

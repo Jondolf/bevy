@@ -44,7 +44,7 @@
 
 use bevy::color::palettes::tailwind;
 use bevy::input::mouse::AccumulatedMouseMotion;
-use bevy::pbr::NotShadowCaster;
+use bevy::pbr::{Mesh3d, MeshMaterial3d, NotShadowCaster};
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
@@ -130,8 +130,8 @@ fn spawn_view_model(
             // Spawn the player's right arm.
             parent.spawn((
                 MaterialMesh3dBundle {
-                    mesh: arm.into(),
-                    material: arm_material.into(),
+                    mesh: arm,
+                    material: arm_material,
                 },
                 Transform::from_xyz(0.2, -0.1, -0.25),
                 // Ensure the arm is only rendered by the view model camera.
@@ -147,30 +147,30 @@ fn spawn_world_model(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let floor = meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(10.0)));
-    let cube = meshes.add(Cuboid::new(2.0, 0.5, 1.0));
-    let material = materials.add(Color::WHITE);
+    let floor: Mesh3d = meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(10.0)));
+    let cube: Mesh3d = meshes.add(Cuboid::new(2.0, 0.5, 1.0));
+    let material: MeshMaterial3d<StandardMaterial> = materials.add(Color::WHITE);
 
     // The world model camera will render the floor and the cubes spawned in this system.
     // Assigning no `RenderLayers` component defaults to layer 0.
 
     commands.spawn(MaterialMesh3dBundle {
-        mesh: floor.into(),
-        material: material.clone().into(),
+        mesh: floor,
+        material: material.clone(),
     });
 
     commands.spawn((
         MaterialMesh3dBundle {
-            mesh: cube.clone().into(),
-            material: material.clone().into(),
+            mesh: cube.clone(),
+            material: material.clone(),
         },
         Transform::from_xyz(0.0, 0.25, -3.0),
     ));
 
     commands.spawn((
         MaterialMesh3dBundle {
-            mesh: cube.into(),
-            material: material.into(),
+            mesh: cube,
+            material,
         },
         Transform::from_xyz(0.75, 1.75, 0.0),
     ));

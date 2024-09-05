@@ -32,18 +32,16 @@ fn setup(
     // Import the custom texture.
     let custom_texture_handle: Handle<Image> = asset_server.load("textures/array_texture.png");
     // Create and save a handle to the mesh.
-    let cube_mesh_handle: Handle<Mesh> = meshes.add(create_cube_mesh());
+    let cube_mesh_handle = meshes.add(create_cube_mesh());
 
     // Render the mesh with the custom texture using a PbrBundle, add the marker.
     commands.spawn((
         PbrBundle {
-            mesh: cube_mesh_handle.into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color_texture: Some(custom_texture_handle),
-                    ..default()
-                })
-                .into(),
+            mesh: cube_mesh_handle,
+            material: materials.add(StandardMaterial {
+                base_color_texture: Some(custom_texture_handle),
+                ..default()
+            }),
         },
         CustomUV,
     ));

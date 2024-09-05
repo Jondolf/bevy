@@ -95,10 +95,8 @@ fn setup(
 ) {
     // Spawn a plane.
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(50.0, 50.0))
-            .into(),
-        material: materials.add(Color::srgb(0.1, 0.2, 0.1)).into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+        material: materials.add(Color::srgb(0.1, 0.2, 0.1)),
     });
 
     // Spawn the two HLODs.

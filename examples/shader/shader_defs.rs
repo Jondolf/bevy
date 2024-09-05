@@ -31,13 +31,11 @@ fn setup(
     // blue cube
     commands.spawn((
         MaterialMesh3dBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials
-                .add(CustomMaterial {
-                    color: LinearRgba::BLUE,
-                    is_red: false,
-                })
-                .into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(CustomMaterial {
+                color: LinearRgba::BLUE,
+                is_red: false,
+            }),
         },
         Transform::from_xyz(-1.0, 0.5, 0.0),
     ));
@@ -45,13 +43,11 @@ fn setup(
     // red cube (with green color overridden by the IS_RED "shader def")
     commands.spawn((
         MaterialMesh3dBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials
-                .add(CustomMaterial {
-                    color: LinearRgba::GREEN,
-                    is_red: true,
-                })
-                .into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(CustomMaterial {
+                color: LinearRgba::GREEN,
+                is_red: true,
+            }),
         },
         Transform::from_xyz(1.0, 0.5, 0.0),
     ));

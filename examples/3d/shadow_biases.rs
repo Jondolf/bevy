@@ -3,7 +3,10 @@
 #[path = "../helpers/camera_controller.rs"]
 mod camera_controller;
 
-use bevy::{pbr::ShadowFilteringMethod, prelude::*};
+use bevy::{
+    pbr::{Mesh3d, MeshMaterial3d, ShadowFilteringMethod},
+    prelude::*,
+};
 use camera_controller::{CameraController, CameraControllerPlugin};
 
 fn main() {
@@ -37,12 +40,12 @@ fn setup(
     let spawn_height = 2.0;
     let sphere_radius = 0.25;
 
-    let white_handle = materials.add(StandardMaterial {
+    let white_handle: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::WHITE,
         perceptual_roughness: 1.0,
         ..default()
     });
-    let sphere_handle = meshes.add(Sphere::new(sphere_radius));
+    let sphere_handle: Mesh3d = meshes.add(Sphere::new(sphere_radius));
 
     let light_transform = Transform::from_xyz(5.0, 5.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y);
     commands
@@ -91,8 +94,8 @@ fn setup(
     for z_i32 in (-spawn_plane_depth as i32..=0).step_by(2) {
         commands.spawn((
             PbrBundle {
-                mesh: sphere_handle.clone().into(),
-                material: white_handle.clone().into(),
+                mesh: sphere_handle.clone(),
+                material: white_handle.clone(),
             },
             Transform::from_xyz(
                 0.0,
@@ -109,10 +112,8 @@ fn setup(
     // ground plane
     let plane_size = 2.0 * spawn_plane_depth;
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(plane_size, plane_size))
-            .into(),
-        material: white_handle.into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(plane_size, plane_size)),
+        material: white_handle,
     });
 
     let style = TextStyle::default();

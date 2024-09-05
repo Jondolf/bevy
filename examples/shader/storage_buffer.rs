@@ -41,7 +41,7 @@ fn setup(
     // Create the custom material with the storage buffer
     let custom_material = CustomMaterial { colors };
 
-    let material_handle = materials.add(custom_material);
+    let material_handle: Handle<CustomMaterial> = materials.add(custom_material);
     commands.insert_resource(CustomMaterialHandle(material_handle.clone()));
 
     // Spawn cubes with the custom material
@@ -49,7 +49,7 @@ fn setup(
         for j in -3..=3 {
             commands.spawn((
                 MaterialMesh3dBundle {
-                    mesh: meshes.add(Cuboid::from_size(Vec3::splat(0.3))).into(),
+                    mesh: meshes.add(Cuboid::from_size(Vec3::splat(0.3))),
                     material: material_handle.clone().into(),
                 },
                 Transform::from_xyz(i as f32, j as f32, 0.0),

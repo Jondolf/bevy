@@ -6,6 +6,7 @@ use bevy::{
         bloom::{BloomCompositeMode, BloomSettings},
         tonemapping::Tonemapping,
     },
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
 };
 use std::{
@@ -40,24 +41,24 @@ fn setup_scene(
         BloomSettings::NATURAL,
     ));
 
-    let material_emissive1 = materials.add(StandardMaterial {
+    let material_emissive1: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         emissive: LinearRgba::rgb(13.99, 5.32, 2.0), // 4. Put something bright in a dark environment to see the effect
         ..default()
     });
-    let material_emissive2 = materials.add(StandardMaterial {
+    let material_emissive2: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         emissive: LinearRgba::rgb(2.0, 13.99, 5.32),
         ..default()
     });
-    let material_emissive3 = materials.add(StandardMaterial {
+    let material_emissive3: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         emissive: LinearRgba::rgb(5.32, 2.0, 13.99),
         ..default()
     });
-    let material_non_emissive = materials.add(StandardMaterial {
+    let material_non_emissive: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: GRAY.into(),
         ..default()
     });
 
-    let mesh = meshes.add(Sphere::new(0.5).mesh().ico(5).unwrap());
+    let mesh: Mesh3d = meshes.add(Sphere::new(0.5).mesh().ico(5).unwrap());
 
     for x in -5..5 {
         for z in -5..5 {
@@ -77,8 +78,8 @@ fn setup_scene(
 
             commands.spawn((
                 PbrBundle {
-                    mesh: mesh.clone().into(),
-                    material: material.into(),
+                    mesh: mesh.clone(),
+                    material,
                 },
                 Transform::from_xyz(x as f32 * 2.0, 0.0, z as f32 * 2.0),
                 Bouncing,

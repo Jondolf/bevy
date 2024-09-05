@@ -11,7 +11,7 @@ use bevy::{
     },
     prelude::*,
     render::mesh::{CircularMeshUvMode, CircularSectorMeshBuilder, CircularSegmentMeshBuilder},
-    sprite::MaterialMesh2dBundle,
+    sprite::{MaterialMesh2dBundle, MeshMaterial2d},
 };
 
 fn main() {
@@ -37,7 +37,8 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let material = materials.add(asset_server.load("branding/icon.png"));
+    let material: MeshMaterial2d<ColorMaterial> =
+        materials.add(asset_server.load("branding/icon.png"));
 
     commands.spawn(Camera2dBundle {
         camera: Camera {
@@ -68,8 +69,8 @@ fn setup(
             });
         commands.spawn((
             MaterialMesh2dBundle {
-                mesh: meshes.add(sector_mesh).into(),
-                material: material.clone().into(),
+                mesh: meshes.add(sector_mesh),
+                material: material.clone(),
             },
             Transform {
                 translation: Vec3::new(FIRST_X + OFFSET * i as f32, 2.0 * UPPER_Y, 0.0),
@@ -94,8 +95,8 @@ fn setup(
             });
         commands.spawn((
             MaterialMesh2dBundle {
-                mesh: meshes.add(segment_mesh).into(),
-                material: material.clone().into(),
+                mesh: meshes.add(segment_mesh),
+                material: material.clone(),
             },
             Transform {
                 translation: Vec3::new(FIRST_X + OFFSET * i as f32, LOWER_Y, 0.0),

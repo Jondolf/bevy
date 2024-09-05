@@ -1,6 +1,6 @@
 //! Demonstrates how lighting is affected by different radius of point lights.
 
-use bevy::prelude::*;
+use bevy::{pbr::Mesh3d, prelude::*};
 
 fn main() {
     App::new()
@@ -26,16 +26,12 @@ fn setup(
 
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(100.0, 100.0))
-            .into(),
-        material: materials
-            .add(StandardMaterial {
-                base_color: Color::srgb(0.2, 0.2, 0.2),
-                perceptual_roughness: 0.08,
-                ..default()
-            })
-            .into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(100.0, 100.0)),
+        material: materials.add(StandardMaterial {
+            base_color: Color::srgb(0.2, 0.2, 0.2),
+            perceptual_roughness: 0.08,
+            ..default()
+        }),
     });
 
     const COUNT: usize = 6;
@@ -43,7 +39,7 @@ fn setup(
     let radius_range = 0.0..0.4;
     let pos_len = position_range.end - position_range.start;
     let radius_len = radius_range.end - radius_range.start;
-    let mesh = meshes.add(Sphere::new(1.0).mesh().uv(120, 64));
+    let mesh: Mesh3d = meshes.add(Sphere::new(1.0).mesh().uv(120, 64));
 
     for i in 0..COUNT {
         let percent = i as f32 / COUNT as f32;
@@ -53,14 +49,12 @@ fn setup(
         commands
             .spawn((
                 PbrBundle {
-                    mesh: mesh.clone().into(),
-                    material: materials
-                        .add(StandardMaterial {
-                            base_color: Color::srgb(0.5, 0.5, 1.0),
-                            unlit: true,
-                            ..default()
-                        })
-                        .into(),
+                    mesh: mesh.clone(),
+                    material: materials.add(StandardMaterial {
+                        base_color: Color::srgb(0.5, 0.5, 1.0),
+                        unlit: true,
+                        ..default()
+                    }),
                 },
                 Transform::from_xyz(position_range.start + percent * pos_len, 0.3, 0.0)
                     .with_scale(Vec3::splat(radius)),

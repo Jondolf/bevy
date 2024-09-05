@@ -1,7 +1,10 @@
 //! Illustrates how to create parent-child relationships between entities and how parent transforms
 //! are propagated to their descendants.
 
-use bevy::prelude::*;
+use bevy::{
+    pbr::{Mesh3d, MeshMaterial3d},
+    prelude::*,
+};
 
 fn main() {
     App::new()
@@ -28,8 +31,8 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let cube_handle = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
-    let cube_material_handle = materials.add(StandardMaterial {
+    let cube_handle: Mesh3d = meshes.add(Cuboid::new(2.0, 2.0, 2.0));
+    let cube_material_handle: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::srgb(0.8, 0.7, 0.6),
         ..default()
     });
@@ -38,8 +41,8 @@ fn setup(
     commands
         .spawn((
             PbrBundle {
-                mesh: cube_handle.clone().into(),
-                material: cube_material_handle.clone().into(),
+                mesh: cube_handle.clone(),
+                material: cube_material_handle.clone(),
             },
             Transform::from_xyz(0.0, 0.0, 1.0),
             Rotator,
@@ -48,8 +51,8 @@ fn setup(
             // child cube
             parent.spawn((
                 PbrBundle {
-                    mesh: cube_handle.into(),
-                    material: cube_material_handle.into(),
+                    mesh: cube_handle,
+                    material: cube_material_handle,
                 },
                 Transform::from_xyz(0.0, 0.0, 3.0),
             ));

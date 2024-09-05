@@ -138,12 +138,12 @@ fn setup(
     let planet_entity = commands
         .spawn((
             PbrBundle {
-                mesh: meshes.add(Sphere::default()).into(),
-                material: materials.add(Color::srgb(0.8, 0.7, 0.6)).into(),
+                mesh: meshes.add(Sphere::default()),
+                material: materials.add(Color::srgb(0.8, 0.7, 0.6)),
             },
             // Add the animation graph and player
             planet,
-            graphs.add(graph),
+            graphs.add::<Handle<AnimationGraph>>(graph),
             player,
         ))
         .id();
@@ -167,8 +167,8 @@ fn setup(
                 // The satellite, placed at a distance of the planet
                 p.spawn((
                     PbrBundle {
-                        mesh: meshes.add(Cuboid::new(0.5, 0.5, 0.5)).into(),
-                        material: materials.add(Color::srgb(0.3, 0.9, 0.3)).into(),
+                        mesh: meshes.add(Cuboid::new(0.5, 0.5, 0.5)),
+                        material: materials.add(Color::srgb(0.3, 0.9, 0.3)),
                     },
                     Transform::from_xyz(1.5, 0.0, 0.0),
                     AnimationTarget {

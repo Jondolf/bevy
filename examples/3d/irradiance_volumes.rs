@@ -17,7 +17,7 @@ use bevy::color::palettes::css::*;
 use bevy::core_pipeline::Skybox;
 use bevy::math::{uvec3, vec3};
 use bevy::pbr::irradiance_volume::IrradianceVolume;
-use bevy::pbr::{ExtendedMaterial, MaterialExtension, NotShadowCaster};
+use bevy::pbr::{ExtendedMaterial, MaterialExtension, MeshMaterial3d, NotShadowCaster};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderRef, ShaderType};
 use bevy::window::PrimaryWindow;
@@ -567,7 +567,9 @@ fn create_cubes(
 
         let resolution = image.texture_descriptor.size;
 
-        let voxel_cube_material = voxel_visualization_material_assets.add(ExtendedMaterial {
+        let voxel_cube_material: MeshMaterial3d<
+            ExtendedMaterial<StandardMaterial, VoxelVisualizationExtension>,
+        > = voxel_visualization_material_assets.add(ExtendedMaterial {
             base: StandardMaterial::from(Color::from(RED)),
             extension: VoxelVisualizationExtension {
                 irradiance_volume_info: VoxelVisualizationIrradianceVolumeInfo {
@@ -599,7 +601,7 @@ fn create_cubes(
                         .spawn((
                             MaterialMesh3dBundle {
                                 mesh: example_assets.voxel_cube.clone().into(),
-                                material: voxel_cube_material.clone().into(),
+                                material: voxel_cube_material.clone(),
                             },
                             Transform::from_scale(Vec3::splat(VOXEL_CUBE_SCALE))
                                 .with_translation(pos),

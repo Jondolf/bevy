@@ -246,9 +246,7 @@ fn setup(
     let mut bird_resources = BirdResources {
         textures,
         materials,
-        quad: meshes
-            .add(Rectangle::from_size(Vec2::splat(BIRD_TEXTURE_SIZE as f32)))
-            .into(),
+        quad: meshes.add(Rectangle::from_size(Vec2::splat(BIRD_TEXTURE_SIZE as f32))),
         // We're seeding the PRNG here to make this example deterministic for testing purposes.
         // This isn't strictly required in practical use unless you need your app to be deterministic.
         color_rng: ChaCha8Rng::seed_from_u64(42),

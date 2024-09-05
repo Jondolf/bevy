@@ -45,10 +45,8 @@ fn setup(
     // A plane:
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(12.0, 12.0))
-                .into(),
-            material: materials.add(Color::srgb(0.3, 0.15, 0.3)).into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(12.0, 12.0)),
+            material: materials.add(Color::srgb(0.3, 0.15, 0.3)),
         },
         Transform::from_xyz(0.0, -2.5, 0.0),
     ));
@@ -56,8 +54,8 @@ fn setup(
     // The target sphere:
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::new(0.3)).into(),
-            material: materials.add(Color::srgb(0.3, 0.15, 0.9)).into(),
+            mesh: meshes.add(Sphere::new(0.3)),
+            material: materials.add(Color::srgb(0.3, 0.15, 0.9)),
         },
         TargetSphere,
     ));
@@ -65,8 +63,8 @@ fn setup(
     // The sphere that follows it:
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::new(0.3)).into(),
-            material: materials.add(Color::srgb(0.9, 0.3, 0.3)).into(),
+            mesh: meshes.add(Sphere::new(0.3)),
+            material: materials.add(Color::srgb(0.9, 0.3, 0.3)),
         },
         Transform::from_translation(vec3(0.0, -2.0, 0.0)),
         FollowingSphere,

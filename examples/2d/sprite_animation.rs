@@ -98,7 +98,7 @@ fn setup(
 
     // the sprite sheet has 7 sprites arranged in a row, and they are all 24px x 24px
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(24), 7, 1, None, None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+    let texture_atlas_layout: Handle<TextureAtlasLayout> = texture_atlas_layouts.add(layout);
 
     // the first (left-hand) sprite runs at 10 FPS
     let animation_config_1 = AnimationConfig::new(1, 6, 10);

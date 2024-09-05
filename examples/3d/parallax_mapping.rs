@@ -3,7 +3,11 @@
 
 use std::fmt;
 
-use bevy::{prelude::*, render::texture::ImageLoaderSettings};
+use bevy::{
+    pbr::{Mesh3d, MeshMaterial3d},
+    prelude::*,
+    render::texture::ImageLoaderSettings,
+};
 
 fn main() {
     App::new()
@@ -231,25 +235,21 @@ fn setup(
         })
         .with_children(|commands| {
             // represent the light source as a sphere
-            let mesh = meshes.add(Sphere::new(0.05).mesh().ico(3).unwrap()).into();
+            let mesh = meshes.add(Sphere::new(0.05).mesh().ico(3).unwrap());
             commands.spawn(PbrBundle { mesh, ..default() });
         });
 
     // Plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(10.0, 10.0))
-                .into(),
-            material: materials
-                .add(StandardMaterial {
-                    // standard material derived from dark green, but
-                    // with roughness and reflectance set.
-                    perceptual_roughness: 0.45,
-                    reflectance: 0.18,
-                    ..Color::srgb_u8(0, 80, 0).into()
-                })
-                .into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(10.0, 10.0)),
+            material: materials.add(StandardMaterial {
+                // standard material derived from dark green, but
+                // with roughness and reflectance set.
+                perceptual_roughness: 0.45,
+                reflectance: 0.18,
+                ..Color::srgb_u8(0, 80, 0).into()
+            }),
         },
         Transform::from_xyz(0.0, -1.0, 0.0),
     ));
@@ -257,7 +257,7 @@ fn setup(
     let parallax_depth_scale = TargetDepth::default().0;
     let max_parallax_layer_count = TargetLayers::default().0.exp2();
     let parallax_mapping_method = CurrentMethod::default();
-    let parallax_material = materials.add(StandardMaterial {
+    let parallax_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         perceptual_roughness: 0.4,
         base_color_texture: Some(asset_server.load("textures/parallax_example/cube_color.png")),
         normal_map_texture: Some(normal_handle),
@@ -271,21 +271,19 @@ fn setup(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(
-                    // NOTE: for normal maps and depth maps to work, the mesh
-                    // needs tangents generated.
-                    Mesh::from(Cuboid::default())
-                        .with_generated_tangents()
-                        .unwrap(),
-                )
-                .into(),
-            material: parallax_material.clone_weak().into(),
+            mesh: meshes.add(
+                // NOTE: for normal maps and depth maps to work, the mesh
+                // needs tangents generated.
+                Mesh::from(Cuboid::default())
+                    .with_generated_tangents()
+                    .unwrap(),
+            ),
+            material: parallax_material.clone(),
         },
         Spin { speed: 0.3 },
     ));
 
-    let background_cube = meshes.add(
+    let background_cube: Mesh3d = meshes.add(
         Mesh::from(Cuboid::new(40.0, 40.0, 40.0))
             .with_generated_tangents()
             .unwrap(),
@@ -294,8 +292,8 @@ fn setup(
     let background_cube_bundle = |translation| {
         (
             PbrBundle {
-                mesh: background_cube.clone().into(),
-                material: parallax_material.clone().into(),
+                mesh: background_cube.clone(),
+                material: parallax_material.clone(),
             },
             Transform::from_translation(translation),
             Spin { speed: -0.1 },

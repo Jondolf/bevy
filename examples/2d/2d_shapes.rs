@@ -57,7 +57,7 @@ fn setup(
         commands.spawn((
             MaterialMesh2dBundle {
                 mesh: shape,
-                material: materials.add(color).into(),
+                material: materials.add(color),
             },
             Transform::from_xyz(
                 // Distribute shapes from -X_EXTENT/2 to +X_EXTENT/2.

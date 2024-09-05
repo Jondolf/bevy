@@ -3,8 +3,11 @@
 #![allow(clippy::match_same_arms)]
 
 use bevy::{
-    input::common_conditions::input_just_pressed, math::Isometry2d, prelude::*,
-    sprite::MaterialMesh2dBundle,
+    input::common_conditions::input_just_pressed,
+    math::Isometry2d,
+    pbr::MeshMaterial3d,
+    prelude::*,
+    sprite::{MaterialMesh2dBundle, MeshMaterial2d},
 };
 
 const LEFT_RIGHT_OFFSET_2D: f32 = 200.0;
@@ -505,7 +508,7 @@ fn spawn_primitive_2d(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     const POSITION: Vec3 = Vec3::new(LEFT_RIGHT_OFFSET_2D, 0.0, 0.0);
-    let material: Handle<ColorMaterial> = materials.add(Color::WHITE);
+    let material: MeshMaterial2d<ColorMaterial> = materials.add(Color::WHITE);
     let camera_mode = CameraActive::Dim2;
     [
         Some(RECTANGLE.mesh().build()),
@@ -536,8 +539,8 @@ fn spawn_primitive_2d(
                     primitive_state: state,
                 },
                 MaterialMesh2dBundle {
-                    mesh: meshes.add(mesh).into(),
-                    material: material.clone().into(),
+                    mesh: meshes.add(mesh),
+                    material: material.clone(),
                 },
                 Transform::from_translation(POSITION),
             ));
@@ -551,7 +554,7 @@ fn spawn_primitive_3d(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     const POSITION: Vec3 = Vec3::new(-LEFT_RIGHT_OFFSET_3D, 0.0, 0.0);
-    let material: Handle<StandardMaterial> = materials.add(Color::WHITE);
+    let material: MeshMaterial3d<StandardMaterial> = materials.add(Color::WHITE);
     let camera_mode = CameraActive::Dim3;
     [
         Some(CUBOID.mesh().build()),
@@ -582,8 +585,8 @@ fn spawn_primitive_3d(
                     primitive_state: state,
                 },
                 PbrBundle {
-                    mesh: meshes.add(mesh).into(),
-                    material: material.clone().into(),
+                    mesh: meshes.add(mesh),
+                    material: material.clone(),
                 },
                 Transform::from_translation(POSITION),
             ));

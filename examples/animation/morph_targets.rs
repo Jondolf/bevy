@@ -79,7 +79,9 @@ fn setup_animations(
         }
 
         let (graph, animation) = AnimationGraph::from_clip(morph_data.the_wave.clone());
-        commands.entity(entity).insert(graphs.add(graph));
+        commands
+            .entity(entity)
+            .insert(graphs.add::<Handle<AnimationGraph>>(graph));
 
         player.play(animation).repeat();
         *has_setup = true;

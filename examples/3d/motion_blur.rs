@@ -3,6 +3,7 @@
 
 use bevy::{
     core_pipeline::motion_blur::{MotionBlur, MotionBlurBundle},
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
 };
 
@@ -78,14 +79,12 @@ fn setup_scene(
     // Sky
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::default()).into(),
-            material: materials
-                .add(StandardMaterial {
-                    unlit: true,
-                    base_color: Color::linear_rgb(0.1, 0.6, 1.0),
-                    ..default()
-                })
-                .into(),
+            mesh: meshes.add(Sphere::default()),
+            material: materials.add(StandardMaterial {
+                unlit: true,
+                base_color: Color::linear_rgb(0.1, 0.6, 1.0),
+                ..default()
+            }),
         },
         Transform::default().with_scale(Vec3::splat(-4000.0)),
     ));
@@ -96,15 +95,13 @@ fn setup_scene(
     plane.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(plane).into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::WHITE,
-                    perceptual_roughness: 1.0,
-                    base_color_texture: Some(images.add(uv_debug_texture())),
-                    ..default()
-                })
-                .into(),
+            mesh: meshes.add(plane),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                perceptual_roughness: 1.0,
+                base_color_texture: Some(images.add(uv_debug_texture())),
+                ..default()
+            }),
         },
         Transform::from_xyz(0.0, -0.65, 0.0).with_scale(Vec3::splat(80.)),
     ));
@@ -121,10 +118,10 @@ fn spawn_cars(
     commands: &mut Commands,
 ) {
     const N_CARS: usize = 20;
-    let box_mesh = meshes.add(Cuboid::new(0.3, 0.15, 0.55));
-    let cylinder = meshes.add(Cylinder::default());
+    let box_mesh: Mesh3d = meshes.add(Cuboid::new(0.3, 0.15, 0.55));
+    let cylinder: Mesh3d = meshes.add(Cylinder::default());
     let logo = asset_server.load("branding/icon.png");
-    let wheel_matl = materials.add(StandardMaterial {
+    let wheel_matl: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::WHITE,
         base_color_texture: Some(logo.clone()),
         ..default()
@@ -137,7 +134,7 @@ fn spawn_cars(
         })
     };
 
-    let colors = [
+    let colors: [MeshMaterial3d<StandardMaterial>; 8] = [
         matl(Color::linear_rgb(1.0, 0.0, 0.0)),
         matl(Color::linear_rgb(1.0, 1.0, 0.0)),
         matl(Color::BLACK),
@@ -153,8 +150,8 @@ fn spawn_cars(
         let mut entity = commands
             .spawn((
                 PbrBundle {
-                    mesh: box_mesh.clone().into(),
-                    material: color.clone().into(),
+                    mesh: box_mesh.clone(),
+                    material: color.clone(),
                 },
                 Transform::from_scale(Vec3::splat(0.5)),
                 Moves(i as f32 * 2.0),
@@ -163,16 +160,16 @@ fn spawn_cars(
         entity.with_children(|parent| {
             parent.spawn((
                 PbrBundle {
-                    mesh: box_mesh.clone().into(),
-                    material: color.into(),
+                    mesh: box_mesh.clone(),
+                    material: color,
                 },
                 Transform::from_xyz(0.0, 0.08, 0.03).with_scale(Vec3::new(1.0, 1.0, 0.5)),
             ));
             let mut spawn_wheel = |x: f32, z: f32| {
                 parent.spawn((
                     PbrBundle {
-                        mesh: cylinder.clone().into(),
-                        material: wheel_matl.clone().into(),
+                        mesh: cylinder.clone(),
+                        material: wheel_matl.clone(),
                     },
                     Transform::from_xyz(0.14 * x, -0.045, 0.15 * z)
                         .with_scale(Vec3::new(0.15, 0.04, 0.15))
@@ -194,8 +191,8 @@ fn spawn_barriers(
     commands: &mut Commands,
 ) {
     const N_CONES: usize = 100;
-    let capsule = meshes.add(Capsule3d::default());
-    let matl = materials.add(StandardMaterial {
+    let capsule: Mesh3d = meshes.add(Capsule3d::default());
+    let matl: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::srgb_u8(255, 87, 51),
         reflectance: 1.0,
         ..default()
@@ -208,8 +205,8 @@ fn spawn_barriers(
             );
             commands.spawn((
                 PbrBundle {
-                    mesh: capsule.clone().into(),
-                    material: matl.clone().into(),
+                    mesh: capsule.clone(),
+                    material: matl.clone(),
                 },
                 Transform::from_xyz(pos.x, -0.65, pos.y).with_scale(Vec3::splat(0.07)),
             ));
@@ -225,10 +222,10 @@ fn spawn_trees(
     commands: &mut Commands,
 ) {
     const N_TREES: usize = 30;
-    let capsule = meshes.add(Capsule3d::default());
-    let sphere = meshes.add(Sphere::default());
-    let leaves = materials.add(Color::linear_rgb(0.0, 1.0, 0.0));
-    let trunk = materials.add(Color::linear_rgb(0.4, 0.2, 0.2));
+    let capsule: Mesh3d = meshes.add(Capsule3d::default());
+    let sphere: Mesh3d = meshes.add(Sphere::default());
+    let leaves: MeshMaterial3d<StandardMaterial> = materials.add(Color::linear_rgb(0.0, 1.0, 0.0));
+    let trunk: MeshMaterial3d<StandardMaterial> = materials.add(Color::linear_rgb(0.4, 0.2, 0.2));
 
     let mut spawn_with_offset = |offset: f32| {
         for i in 0..N_TREES {
@@ -239,15 +236,15 @@ fn spawn_trees(
             let [x, z] = pos.into();
             commands.spawn((
                 PbrBundle {
-                    mesh: sphere.clone().into(),
-                    material: leaves.clone().into(),
+                    mesh: sphere.clone(),
+                    material: leaves.clone(),
                 },
                 Transform::from_xyz(x, -0.3, z).with_scale(Vec3::splat(0.3)),
             ));
             commands.spawn((
                 PbrBundle {
-                    mesh: capsule.clone().into(),
-                    material: trunk.clone().into(),
+                    mesh: capsule.clone(),
+                    material: trunk.clone(),
                 },
                 Transform::from_xyz(x, -0.5, z).with_scale(Vec3::new(0.05, 0.3, 0.05)),
             ));

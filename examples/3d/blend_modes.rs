@@ -10,7 +10,11 @@
 //! | `Spacebar`         | Toggle Unlit                        |
 //! | `C`                | Randomize Colors                    |
 
-use bevy::{color::palettes::css::ORANGE, prelude::*};
+use bevy::{
+    color::palettes::css::ORANGE,
+    pbr::{Mesh3d, MeshMaterial3d},
+    prelude::*,
+};
 use rand::random;
 
 fn main() {
@@ -37,20 +41,18 @@ fn setup(
     asset_server: Res<AssetServer>,
 ) {
     let base_color = Color::srgb(0.9, 0.2, 0.3);
-    let icosphere_mesh = meshes.add(Sphere::new(0.9).mesh().ico(7).unwrap());
+    let icosphere_mesh: Mesh3d = meshes.add(Sphere::new(0.9).mesh().ico(7).unwrap());
 
     // Opaque
     let opaque = commands
         .spawn((
             PbrBundle {
-                mesh: icosphere_mesh.clone().into(),
-                material: materials
-                    .add(StandardMaterial {
-                        base_color,
-                        alpha_mode: AlphaMode::Opaque,
-                        ..default()
-                    })
-                    .into(),
+                mesh: icosphere_mesh.clone(),
+                material: materials.add(StandardMaterial {
+                    base_color,
+                    alpha_mode: AlphaMode::Opaque,
+                    ..default()
+                }),
             },
             Transform::from_xyz(-4.0, 0.0, 0.0),
             ExampleControls {
@@ -64,14 +66,12 @@ fn setup(
     let blend = commands
         .spawn((
             PbrBundle {
-                mesh: icosphere_mesh.clone().into(),
-                material: materials
-                    .add(StandardMaterial {
-                        base_color,
-                        alpha_mode: AlphaMode::Blend,
-                        ..default()
-                    })
-                    .into(),
+                mesh: icosphere_mesh.clone(),
+                material: materials.add(StandardMaterial {
+                    base_color,
+                    alpha_mode: AlphaMode::Blend,
+                    ..default()
+                }),
             },
             Transform::from_xyz(-2.0, 0.0, 0.0),
             ExampleControls {
@@ -85,14 +85,12 @@ fn setup(
     let premultiplied = commands
         .spawn((
             PbrBundle {
-                mesh: icosphere_mesh.clone().into(),
-                material: materials
-                    .add(StandardMaterial {
-                        base_color,
-                        alpha_mode: AlphaMode::Premultiplied,
-                        ..default()
-                    })
-                    .into(),
+                mesh: icosphere_mesh.clone(),
+                material: materials.add(StandardMaterial {
+                    base_color,
+                    alpha_mode: AlphaMode::Premultiplied,
+                    ..default()
+                }),
             },
             Transform::from_xyz(0.0, 0.0, 0.0),
             ExampleControls {
@@ -106,14 +104,12 @@ fn setup(
     let add = commands
         .spawn((
             PbrBundle {
-                mesh: icosphere_mesh.clone().into(),
-                material: materials
-                    .add(StandardMaterial {
-                        base_color,
-                        alpha_mode: AlphaMode::Add,
-                        ..default()
-                    })
-                    .into(),
+                mesh: icosphere_mesh.clone(),
+                material: materials.add(StandardMaterial {
+                    base_color,
+                    alpha_mode: AlphaMode::Add,
+                    ..default()
+                }),
             },
             Transform::from_xyz(2.0, 0.0, 0.0),
             ExampleControls {
@@ -127,14 +123,12 @@ fn setup(
     let multiply = commands
         .spawn((
             PbrBundle {
-                mesh: icosphere_mesh.into(),
-                material: materials
-                    .add(StandardMaterial {
-                        base_color,
-                        alpha_mode: AlphaMode::Multiply,
-                        ..default()
-                    })
-                    .into(),
+                mesh: icosphere_mesh,
+                material: materials.add(StandardMaterial {
+                    base_color,
+                    alpha_mode: AlphaMode::Multiply,
+                    ..default()
+                }),
             },
             Transform::from_xyz(4.0, 0.0, 0.0),
             ExampleControls {
@@ -145,20 +139,20 @@ fn setup(
         .id();
 
     // Chessboard Plane
-    let black_material = materials.add(Color::BLACK);
-    let white_material = materials.add(Color::WHITE);
+    let black_material: MeshMaterial3d<StandardMaterial> = materials.add(Color::BLACK);
+    let white_material: MeshMaterial3d<StandardMaterial> = materials.add(Color::WHITE);
 
-    let plane_mesh = meshes.add(Plane3d::default().mesh().size(2.0, 2.0));
+    let plane_mesh: Mesh3d = meshes.add(Plane3d::default().mesh().size(2.0, 2.0));
 
     for x in -3..4 {
         for z in -3..4 {
             commands.spawn((
                 PbrBundle {
-                    mesh: plane_mesh.clone().into(),
+                    mesh: plane_mesh.clone(),
                     material: if (x + z) % 2 == 0 {
-                        black_material.clone().into()
+                        black_material.clone()
                     } else {
-                        white_material.clone().into()
+                        white_material.clone()
                     },
                 },
                 Transform::from_xyz(x as f32 * 2.0, -1.0, z as f32 * 2.0),

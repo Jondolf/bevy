@@ -46,8 +46,8 @@ fn setup(
     // Add an object (sphere) for visualizing scaling.
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::new(3.0).mesh().ico(32).unwrap()).into(),
-            material: materials.add(Color::from(YELLOW)).into(),
+            mesh: meshes.add(Sphere::new(3.0).mesh().ico(32).unwrap()),
+            material: materials.add(Color::from(YELLOW)),
         },
         Transform::from_translation(Vec3::ZERO),
         Center {
@@ -66,8 +66,8 @@ fn setup(
         Transform::from_translation(Vec3::Z * -10.0).with_rotation(Quat::from_rotation_y(PI / 2.));
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials.add(Color::WHITE).into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(Color::WHITE),
         },
         cube_spawn,
         CubeState {

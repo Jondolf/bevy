@@ -1126,7 +1126,7 @@ mod tests {
         let id = {
             let handle = {
                 let mut texts = app.world_mut().resource_mut::<Assets<CoolText>>();
-                let handle = texts.add(CoolText::default());
+                let handle: Handle<CoolText> = texts.add(CoolText::default());
                 texts.get_strong_handle(handle.id()).unwrap()
             };
 

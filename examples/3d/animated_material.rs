@@ -1,6 +1,6 @@
 //! Shows how to animate material properties
 
-use bevy::prelude::*;
+use bevy::{pbr::Mesh3d, prelude::*};
 
 fn main() {
     App::new()
@@ -30,7 +30,7 @@ fn setup(
         },
     ));
 
-    let cube = meshes.add(Cuboid::new(0.5, 0.5, 0.5));
+    let cube: Mesh3d = meshes.add(Cuboid::new(0.5, 0.5, 0.5));
 
     const GOLDEN_ANGLE: f32 = 137.507_77;
 
@@ -39,8 +39,8 @@ fn setup(
         for z in -1..2 {
             commands.spawn((
                 PbrBundle {
-                    mesh: cube.clone().into(),
-                    material: materials.add(Color::from(hsla)).into(),
+                    mesh: cube.clone(),
+                    material: materials.add(Color::from(hsla)),
                 },
                 Transform::from_translation(Vec3::new(x as f32, 0.0, z as f32)),
             ));

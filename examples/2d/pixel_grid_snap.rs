@@ -82,8 +82,8 @@ fn setup_mesh(
 ) {
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(Capsule2d::default()).into(),
-            material: materials.add(Color::BLACK).into(),
+            mesh: meshes.add(Capsule2d::default()),
+            material: materials.add(Color::BLACK),
         },
         Transform::from_xyz(40., 0., 2.).with_scale(Vec3::splat(32.)),
         Rotate,
@@ -118,7 +118,7 @@ fn setup_camera(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     // fill image.data with zeroes
     canvas.resize(canvas_size);
 
-    let image_handle = images.add(canvas);
+    let image_handle: Handle<Image> = images.add(canvas);
 
     // this camera renders whatever is on `PIXEL_PERFECT_LAYERS` to the canvas
     commands.spawn((

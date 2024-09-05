@@ -33,13 +33,11 @@ fn setup(
     // quad
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: meshes.add(Rectangle::default()).into(),
-            material: materials
-                .add(CustomMaterial {
-                    color: LinearRgba::BLUE,
-                    color_texture: Some(asset_server.load("branding/icon.png")),
-                })
-                .into(),
+            mesh: meshes.add(Rectangle::default()),
+            material: materials.add(CustomMaterial {
+                color: LinearRgba::BLUE,
+                color_texture: Some(asset_server.load("branding/icon.png")),
+            }),
         },
         Transform::default().with_scale(Vec3::splat(128.)),
     ));

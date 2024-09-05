@@ -3,6 +3,7 @@
 
 use bevy::{
     asset::LoadState,
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
@@ -69,15 +70,16 @@ fn create_array_texture(
     image.reinterpret_stacked_2d_as_array(array_layers);
 
     // Spawn some cubes using the array texture
-    let mesh_handle = meshes.add(Cuboid::default());
-    let material_handle = materials.add(ArrayTextureMaterial {
-        array_texture: loading_texture.handle.clone(),
-    });
+    let mesh_handle: Mesh3d = meshes.add(Cuboid::default());
+    let material_handle: MeshMaterial3d<ArrayTextureMaterial> =
+        materials.add(ArrayTextureMaterial {
+            array_texture: loading_texture.handle.clone(),
+        });
     for x in -5..=5 {
         commands.spawn((
             MaterialMesh3dBundle {
-                mesh: mesh_handle.clone().into(),
-                material: material_handle.clone().into(),
+                mesh: mesh_handle.clone(),
+                material: material_handle.clone(),
             },
             Transform::from_xyz(x as f32 + 0.5, 0.0, 0.0),
         ));

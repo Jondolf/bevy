@@ -128,8 +128,8 @@ fn setup_scene(
     // Spawn the ground.
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Circle::new(7.0)).into(),
-            material: materials.add(Color::srgb(0.3, 0.5, 0.3)).into(),
+            mesh: meshes.add(Circle::new(7.0)),
+            material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
         },
         Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
@@ -283,7 +283,7 @@ fn setup_animation_graph_once_loaded(
         }
 
         // We're doing constructing the animation graph. Add it as an asset.
-        let animation_graph = animation_graphs.add(animation_graph);
+        let animation_graph: Handle<AnimationGraph> = animation_graphs.add(animation_graph);
         commands.entity(entity).insert(animation_graph);
 
         // Finally, play the animation.

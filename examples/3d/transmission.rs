@@ -26,7 +26,9 @@ use bevy::{
         bloom::BloomSettings, core_3d::ScreenSpaceTransmissionQuality, prepass::DepthPrepass,
         tonemapping::Tonemapping,
     },
-    pbr::{NotShadowCaster, PointLightShadowMap, TransmittedShadowReceiver},
+    pbr::{
+        Mesh3d, MeshMaterial3d, NotShadowCaster, PointLightShadowMap, TransmittedShadowReceiver,
+    },
     prelude::*,
     render::{
         camera::{Exposure, TemporalJitter},
@@ -69,16 +71,16 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    let icosphere_mesh = meshes.add(Sphere::new(0.9).mesh().ico(7).unwrap());
-    let cube_mesh = meshes.add(Cuboid::new(0.7, 0.7, 0.7));
-    let plane_mesh = meshes.add(Plane3d::default().mesh().size(2.0, 2.0));
-    let cylinder_mesh = meshes.add(Cylinder::new(0.5, 2.0).mesh().resolution(50));
+    let icosphere_mesh: Mesh3d = meshes.add(Sphere::new(0.9).mesh().ico(7).unwrap());
+    let cube_mesh: Mesh3d = meshes.add(Cuboid::new(0.7, 0.7, 0.7));
+    let plane_mesh: Mesh3d = meshes.add(Plane3d::default().mesh().size(2.0, 2.0));
+    let cylinder_mesh: Mesh3d = meshes.add(Cylinder::new(0.5, 2.0).mesh().resolution(50));
 
     // Cube #1
     commands.spawn((
         PbrBundle {
-            mesh: cube_mesh.clone().into(),
-            material: materials.add(StandardMaterial::default()).into(),
+            mesh: cube_mesh.clone(),
+            material: materials.add(StandardMaterial::default()),
         },
         Transform::from_xyz(0.25, 0.5, -2.0).with_rotation(Quat::from_euler(
             EulerRot::XYZ,
@@ -96,8 +98,8 @@ fn setup(
     // Cube #2
     commands.spawn((
         PbrBundle {
-            mesh: cube_mesh.into(),
-            material: materials.add(StandardMaterial::default()).into(),
+            mesh: cube_mesh,
+            material: materials.add(StandardMaterial::default()),
         },
         Transform::from_xyz(-0.75, 0.7, -2.0).with_rotation(Quat::from_euler(
             EulerRot::XYZ,
@@ -115,16 +117,14 @@ fn setup(
     // Candle
     commands.spawn((
         PbrBundle {
-            mesh: cylinder_mesh.into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::srgb(0.9, 0.2, 0.3),
-                    diffuse_transmission: 0.7,
-                    perceptual_roughness: 0.32,
-                    thickness: 0.2,
-                    ..default()
-                })
-                .into(),
+            mesh: cylinder_mesh,
+            material: materials.add(StandardMaterial {
+                base_color: Color::srgb(0.9, 0.2, 0.3),
+                diffuse_transmission: 0.7,
+                perceptual_roughness: 0.32,
+                thickness: 0.2,
+                ..default()
+            }),
         },
         Transform::from_xyz(-1.0, 0.0, 0.0),
         ExampleControls {
@@ -146,14 +146,12 @@ fn setup(
 
     commands.spawn((
         PbrBundle {
-            mesh: icosphere_mesh.clone().into(),
-            material: materials
-                .add(StandardMaterial {
-                    emissive,
-                    diffuse_transmission: 1.0,
-                    ..default()
-                })
-                .into(),
+            mesh: icosphere_mesh.clone(),
+            material: materials.add(StandardMaterial {
+                emissive,
+                diffuse_transmission: 1.0,
+                ..default()
+            }),
         },
         Transform::from_xyz(-1.0, 1.15, 0.0).with_scale(Vec3::new(0.1, 0.2, 0.1)),
         Flicker,
@@ -163,18 +161,16 @@ fn setup(
     // Glass Sphere
     commands.spawn((
         PbrBundle {
-            mesh: icosphere_mesh.clone().into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::WHITE,
-                    specular_transmission: 0.9,
-                    diffuse_transmission: 1.0,
-                    thickness: 1.8,
-                    ior: 1.5,
-                    perceptual_roughness: 0.12,
-                    ..default()
-                })
-                .into(),
+            mesh: icosphere_mesh.clone(),
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                specular_transmission: 0.9,
+                diffuse_transmission: 1.0,
+                thickness: 1.8,
+                ior: 1.5,
+                perceptual_roughness: 0.12,
+                ..default()
+            }),
         },
         Transform::from_xyz(1.0, 0.0, 0.0),
         ExampleControls {
@@ -187,18 +183,16 @@ fn setup(
     // R Sphere
     commands.spawn((
         PbrBundle {
-            mesh: icosphere_mesh.clone().into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: RED.into(),
-                    specular_transmission: 0.9,
-                    diffuse_transmission: 1.0,
-                    thickness: 1.8,
-                    ior: 1.5,
-                    perceptual_roughness: 0.12,
-                    ..default()
-                })
-                .into(),
+            mesh: icosphere_mesh.clone(),
+            material: materials.add(StandardMaterial {
+                base_color: RED.into(),
+                specular_transmission: 0.9,
+                diffuse_transmission: 1.0,
+                thickness: 1.8,
+                ior: 1.5,
+                perceptual_roughness: 0.12,
+                ..default()
+            }),
         },
         Transform::from_xyz(1.0, -0.5, 2.0).with_scale(Vec3::splat(0.5)),
         ExampleControls {
@@ -211,18 +205,16 @@ fn setup(
     // G Sphere
     commands.spawn((
         PbrBundle {
-            mesh: icosphere_mesh.clone().into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: LIME.into(),
-                    specular_transmission: 0.9,
-                    diffuse_transmission: 1.0,
-                    thickness: 1.8,
-                    ior: 1.5,
-                    perceptual_roughness: 0.12,
-                    ..default()
-                })
-                .into(),
+            mesh: icosphere_mesh.clone(),
+            material: materials.add(StandardMaterial {
+                base_color: LIME.into(),
+                specular_transmission: 0.9,
+                diffuse_transmission: 1.0,
+                thickness: 1.8,
+                ior: 1.5,
+                perceptual_roughness: 0.12,
+                ..default()
+            }),
         },
         Transform::from_xyz(0.0, -0.5, 2.0).with_scale(Vec3::splat(0.5)),
         ExampleControls {
@@ -235,18 +227,16 @@ fn setup(
     // B Sphere
     commands.spawn((
         PbrBundle {
-            mesh: icosphere_mesh.into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: BLUE.into(),
-                    specular_transmission: 0.9,
-                    diffuse_transmission: 1.0,
-                    thickness: 1.8,
-                    ior: 1.5,
-                    perceptual_roughness: 0.12,
-                    ..default()
-                })
-                .into(),
+            mesh: icosphere_mesh,
+            material: materials.add(StandardMaterial {
+                base_color: BLUE.into(),
+                specular_transmission: 0.9,
+                diffuse_transmission: 1.0,
+                thickness: 1.8,
+                ior: 1.5,
+                perceptual_roughness: 0.12,
+                ..default()
+            }),
         },
         Transform::from_xyz(-1.0, -0.5, 2.0).with_scale(Vec3::splat(0.5)),
         ExampleControls {
@@ -257,14 +247,14 @@ fn setup(
     ));
 
     // Chessboard Plane
-    let black_material = materials.add(StandardMaterial {
+    let black_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::BLACK,
         reflectance: 0.3,
         perceptual_roughness: 0.8,
         ..default()
     });
 
-    let white_material = materials.add(StandardMaterial {
+    let white_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color: Color::WHITE,
         reflectance: 0.3,
         perceptual_roughness: 0.8,
@@ -275,11 +265,11 @@ fn setup(
         for z in -3..4 {
             commands.spawn((
                 PbrBundle {
-                    mesh: plane_mesh.clone().into(),
+                    mesh: plane_mesh.clone(),
                     material: if (x + z) % 2 == 0 {
-                        black_material.clone().into()
+                        black_material.clone()
                     } else {
-                        white_material.clone().into()
+                        white_material.clone()
                     },
                 },
                 Transform::from_xyz(x as f32 * 2.0, -1.0, z as f32 * 2.0),
@@ -295,18 +285,16 @@ fn setup(
     // Paper
     commands.spawn((
         PbrBundle {
-            mesh: plane_mesh.into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Color::WHITE,
-                    diffuse_transmission: 0.6,
-                    perceptual_roughness: 0.8,
-                    reflectance: 1.0,
-                    double_sided: true,
-                    cull_mode: None,
-                    ..default()
-                })
-                .into(),
+            mesh: plane_mesh,
+            material: materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                diffuse_transmission: 0.6,
+                perceptual_roughness: 0.8,
+                reflectance: 1.0,
+                double_sided: true,
+                cull_mode: None,
+                ..default()
+            }),
         },
         Transform::from_xyz(0.0, 0.5, -3.0)
             .with_scale(Vec3::new(2.0, 1.0, 1.0))

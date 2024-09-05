@@ -10,6 +10,7 @@ use std::f32::consts::PI;
 use bevy::pbr::wireframe::{WireframeConfig, WireframePlugin};
 use bevy::{
     color::palettes::basic::SILVER,
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
     render::{
         render_asset::RenderAssetUsages,
@@ -50,12 +51,12 @@ fn setup(
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let debug_material = materials.add(StandardMaterial {
+    let debug_material: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color_texture: Some(images.add(uv_debug_texture())),
         ..default()
     });
 
-    let shapes = [
+    let shapes: [Mesh3d; 9] = [
         meshes.add(Cuboid::default()),
         meshes.add(Tetrahedron::default()),
         meshes.add(Capsule3d::default()),
@@ -67,7 +68,7 @@ fn setup(
         meshes.add(Sphere::default().mesh().uv(32, 18)),
     ];
 
-    let extrusions = [
+    let extrusions: [Mesh3d; 7] = [
         meshes.add(Extrusion::new(Rectangle::default(), 1.)),
         meshes.add(Extrusion::new(Capsule2d::default(), 1.)),
         meshes.add(Extrusion::new(Annulus::default(), 1.)),
@@ -82,8 +83,8 @@ fn setup(
     for (i, shape) in shapes.into_iter().enumerate() {
         commands.spawn((
             PbrBundle {
-                mesh: shape.into(),
-                material: debug_material.clone().into(),
+                mesh: shape,
+                material: debug_material.clone(),
             },
             Transform::from_xyz(
                 -SHAPES_X_EXTENT / 2. + i as f32 / (num_shapes - 1) as f32 * SHAPES_X_EXTENT,
@@ -100,8 +101,8 @@ fn setup(
     for (i, shape) in extrusions.into_iter().enumerate() {
         commands.spawn((
             PbrBundle {
-                mesh: shape.into(),
-                material: debug_material.clone().into(),
+                mesh: shape,
+                material: debug_material.clone(),
             },
             Transform::from_xyz(
                 -EXTRUSION_X_EXTENT / 2.
@@ -128,10 +129,8 @@ fn setup(
 
     // ground plane
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(50.0, 50.0).subdivisions(10))
-            .into(),
-        material: materials.add(Color::from(SILVER)).into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0).subdivisions(10)),
+        material: materials.add(Color::from(SILVER)),
     });
 
     commands.spawn(Camera3dBundle {

@@ -1,6 +1,6 @@
 //! This example shows how to configure Physically Based Rendering (PBR) parameters.
 
-use bevy::{asset::LoadState, prelude::*};
+use bevy::{asset::LoadState, pbr::Mesh3d, prelude::*};
 
 fn main() {
     App::new()
@@ -17,7 +17,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    let sphere_mesh = meshes.add(Sphere::new(0.45));
+    let sphere_mesh: Mesh3d = meshes.add(Sphere::new(0.45));
     // add entities to the world
     for y in -2..=2 {
         for x in -5..=5 {
@@ -26,16 +26,14 @@ fn setup(
             // sphere
             commands.spawn((
                 PbrBundle {
-                    mesh: sphere_mesh.clone().into(),
-                    material: materials
-                        .add(StandardMaterial {
-                            base_color: Srgba::hex("#ffd891").unwrap().into(),
-                            // vary key PBR parameters on a grid of spheres to show the effect
-                            metallic: y01,
-                            perceptual_roughness: x01,
-                            ..default()
-                        })
-                        .into(),
+                    mesh: sphere_mesh.clone(),
+                    material: materials.add(StandardMaterial {
+                        base_color: Srgba::hex("#ffd891").unwrap().into(),
+                        // vary key PBR parameters on a grid of spheres to show the effect
+                        metallic: y01,
+                        perceptual_roughness: x01,
+                        ..default()
+                    }),
                 },
                 Transform::from_xyz(x as f32, y as f32 + 0.5, 0.0),
             ));
@@ -44,15 +42,13 @@ fn setup(
     // unlit sphere
     commands.spawn((
         PbrBundle {
-            mesh: sphere_mesh.into(),
-            material: materials
-                .add(StandardMaterial {
-                    base_color: Srgba::hex("#ffd891").unwrap().into(),
-                    // vary key PBR parameters on a grid of spheres to show the effect
-                    unlit: true,
-                    ..default()
-                })
-                .into(),
+            mesh: sphere_mesh,
+            material: materials.add(StandardMaterial {
+                base_color: Srgba::hex("#ffd891").unwrap().into(),
+                // vary key PBR parameters on a grid of spheres to show the effect
+                unlit: true,
+                ..default()
+            }),
         },
         Transform::from_xyz(-5.0, -2.5, 0.0),
     ));

@@ -6,8 +6,8 @@
 //!
 //! Reflection probes don't work on WebGL 2 or WebGPU.
 
-use bevy::core_pipeline::Skybox;
 use bevy::prelude::*;
+use bevy::{core_pipeline::Skybox, pbr::Mesh3d};
 
 use std::{
     f32::consts::PI,
@@ -122,19 +122,17 @@ fn spawn_sphere(
     materials: &mut Assets<StandardMaterial>,
 ) {
     // Create a sphere mesh.
-    let sphere_mesh = meshes.add(Sphere::new(1.0).mesh().ico(7).unwrap());
+    let sphere_mesh: Mesh3d = meshes.add(Sphere::new(1.0).mesh().ico(7).unwrap());
 
     // Create a sphere.
     commands.spawn(PbrBundle {
-        mesh: sphere_mesh.clone().into(),
-        material: materials
-            .add(StandardMaterial {
-                base_color: Srgba::hex("#ffd891").unwrap().into(),
-                metallic: 1.0,
-                perceptual_roughness: 0.0,
-                ..StandardMaterial::default()
-            })
-            .into(),
+        mesh: sphere_mesh.clone(),
+        material: materials.add(StandardMaterial {
+            base_color: Srgba::hex("#ffd891").unwrap().into(),
+            metallic: 1.0,
+            perceptual_roughness: 0.0,
+            ..StandardMaterial::default()
+        }),
     });
 }
 

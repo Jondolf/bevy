@@ -4,6 +4,7 @@
 use std::f32::consts::*;
 
 use bevy::{
+    pbr::Mesh3d,
     prelude::*,
     render::{
         mesh::{
@@ -48,10 +49,11 @@ fn setup(
     });
 
     // Create inverse bindpose matrices for a skeleton consists of 2 joints
-    let inverse_bindposes = skinned_mesh_inverse_bindposes_assets.add(vec![
-        Mat4::from_translation(Vec3::new(-0.5, -1.0, 0.0)),
-        Mat4::from_translation(Vec3::new(-0.5, -1.0, 0.0)),
-    ]);
+    let inverse_bindposes: Handle<SkinnedMeshInverseBindposes> =
+        skinned_mesh_inverse_bindposes_assets.add(vec![
+            Mat4::from_translation(Vec3::new(-0.5, -1.0, 0.0)),
+            Mat4::from_translation(Vec3::new(-0.5, -1.0, 0.0)),
+        ]);
 
     // Create a mesh
     let mesh = Mesh::new(
@@ -120,7 +122,7 @@ fn setup(
         0, 1, 3, 0, 3, 2, 2, 3, 5, 2, 5, 4, 4, 5, 7, 4, 7, 6, 6, 7, 9, 6, 9, 8,
     ]));
 
-    let mesh = meshes.add(mesh);
+    let mesh: Mesh3d = meshes.add(mesh);
 
     // We're seeding the PRNG here to make this example deterministic for testing purposes.
     // This isn't strictly required in practical use unless you need your app to be deterministic.
@@ -148,14 +150,12 @@ fn setup(
         // Create skinned mesh renderer. Note that its transform doesn't affect the position of the mesh.
         commands.spawn((
             PbrBundle {
-                mesh: mesh.clone().into(),
-                material: materials
-                    .add(Color::srgb(
-                        rng.gen_range(0.0..1.0),
-                        rng.gen_range(0.0..1.0),
-                        rng.gen_range(0.0..1.0),
-                    ))
-                    .into(),
+                mesh: mesh.clone(),
+                material: materials.add(Color::srgb(
+                    rng.gen_range(0.0..1.0),
+                    rng.gen_range(0.0..1.0),
+                    rng.gen_range(0.0..1.0),
+                )),
             },
             SkinnedMesh {
                 inverse_bindposes: inverse_bindposes.clone(),

@@ -64,8 +64,8 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     );
     image.texture_descriptor.usage =
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
-    let image0 = images.add(image.clone());
-    let image1 = images.add(image);
+    let image0: Handle<Image> = images.add(image.clone());
+    let image1: Handle<Image> = images.add(image);
 
     commands.spawn(SpriteBundle {
         sprite: Sprite {

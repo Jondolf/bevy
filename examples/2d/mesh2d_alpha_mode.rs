@@ -4,7 +4,7 @@
 use bevy::{
     color::palettes::css::{BLUE, GREEN, WHITE},
     prelude::*,
-    sprite::{AlphaMode2d, MaterialMesh2dBundle},
+    sprite::{AlphaMode2d, MaterialMesh2dBundle, Mesh2d},
 };
 
 fn main() {
@@ -23,47 +23,41 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     let texture_handle = asset_server.load("branding/icon.png");
-    let mesh_handle = meshes.add(Rectangle::from_size(Vec2::splat(256.0)));
+    let mesh_handle: Mesh2d = meshes.add(Rectangle::from_size(Vec2::splat(256.0)));
 
     // opaque
     // Each sprite should be square with the transparent parts being completely black
     // The blue sprite should be on top with the white and green one behind it
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: WHITE.into(),
-                    alpha_mode: AlphaMode2d::Opaque,
-                    texture: Some(texture_handle.clone()),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: WHITE.into(),
+                alpha_mode: AlphaMode2d::Opaque,
+                texture: Some(texture_handle.clone()),
+            }),
         },
         Transform::from_xyz(-400.0, 0.0, 0.0),
     ));
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: BLUE.into(),
-                    alpha_mode: AlphaMode2d::Opaque,
-                    texture: Some(texture_handle.clone()),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: BLUE.into(),
+                alpha_mode: AlphaMode2d::Opaque,
+                texture: Some(texture_handle.clone()),
+            }),
         },
         Transform::from_xyz(-300.0, 0.0, 1.0),
     ));
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: GREEN.into(),
-                    alpha_mode: AlphaMode2d::Opaque,
-                    texture: Some(texture_handle.clone()),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: GREEN.into(),
+                alpha_mode: AlphaMode2d::Opaque,
+                texture: Some(texture_handle.clone()),
+            }),
         },
         Transform::from_xyz(-200.0, 0.0, -1.0),
     ));
@@ -75,40 +69,34 @@ fn setup(
     // - behind the blue sprite
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: WHITE.into(),
-                    alpha_mode: AlphaMode2d::Mask(0.5),
-                    texture: Some(texture_handle.clone()),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: WHITE.into(),
+                alpha_mode: AlphaMode2d::Mask(0.5),
+                texture: Some(texture_handle.clone()),
+            }),
         },
         Transform::from_xyz(200.0, 0.0, 0.0),
     ));
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: BLUE.with_alpha(0.7).into(),
-                    alpha_mode: AlphaMode2d::Blend,
-                    texture: Some(texture_handle.clone()),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: BLUE.with_alpha(0.7).into(),
+                alpha_mode: AlphaMode2d::Blend,
+                texture: Some(texture_handle.clone()),
+            }),
         },
         Transform::from_xyz(300.0, 0.0, 1.0),
     ));
     commands.spawn((
         MaterialMesh2dBundle {
-            mesh: mesh_handle.clone().into(),
-            material: materials
-                .add(ColorMaterial {
-                    color: GREEN.with_alpha(0.7).into(),
-                    alpha_mode: AlphaMode2d::Blend,
-                    texture: Some(texture_handle),
-                })
-                .into(),
+            mesh: mesh_handle.clone(),
+            material: materials.add(ColorMaterial {
+                color: GREEN.with_alpha(0.7).into(),
+                alpha_mode: AlphaMode2d::Blend,
+                texture: Some(texture_handle),
+            }),
         },
         Transform::from_xyz(400.0, 0.0, -1.0),
     ));

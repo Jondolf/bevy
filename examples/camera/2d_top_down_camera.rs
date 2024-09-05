@@ -11,7 +11,7 @@
 
 use bevy::core_pipeline::bloom::BloomSettings;
 use bevy::prelude::*;
-use bevy::sprite::{MaterialMesh2dBundle, Mesh2d};
+use bevy::sprite::MaterialMesh2dBundle;
 
 /// Player movement speed factor.
 const PLAYER_SPEED: f32 = 100.;
@@ -37,16 +37,16 @@ fn setup_scene(
 ) {
     // World where we move the player
     commands.spawn(MaterialMesh2dBundle {
-        mesh: Mesh2d(meshes.add(Rectangle::new(1000., 700.))),
-        material: materials.add(Color::srgb(0.2, 0.2, 0.3)).into(),
+        mesh: meshes.add(Rectangle::new(1000., 700.)),
+        material: materials.add(Color::srgb(0.2, 0.2, 0.3)),
     });
 
     // Player
     commands.spawn((
         Player,
         MaterialMesh2dBundle {
-            mesh: meshes.add(Circle::new(25.)).into(),
-            material: materials.add(Color::srgb(6.25, 9.4, 9.1)).into(), // RGB values exceed 1 to achieve a bright color for the bloom effect
+            mesh: meshes.add(Circle::new(25.)),
+            material: materials.add(Color::srgb(6.25, 9.4, 9.1)), // RGB values exceed 1 to achieve a bright color for the bloom effect
         },
         Transform::from_xyz(0., 0., 2.),
     ));

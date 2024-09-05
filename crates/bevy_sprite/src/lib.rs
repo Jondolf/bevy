@@ -249,7 +249,7 @@ mod test {
 
         // Add resources and get handle to image
         let mut image_assets = Assets::<Image>::default();
-        let image_handle = image_assets.add(Image::default());
+        let image_handle: Handle<Image> = image_assets.add(Image::default());
         app.insert_resource(image_assets);
         let mesh_assets = Assets::<Mesh>::default();
         app.insert_resource(mesh_assets);
@@ -290,7 +290,7 @@ mod test {
 
         // Add resources and get handle to image
         let mut image_assets = Assets::<Image>::default();
-        let image_handle = image_assets.add(Image::default());
+        let image_handle: Handle<Image> = image_assets.add(Image::default());
         app.insert_resource(image_assets);
         let mesh_assets = Assets::<Mesh>::default();
         app.insert_resource(mesh_assets);
@@ -355,7 +355,7 @@ mod test {
 
         // Add resources and get handle to image
         let mut image_assets = Assets::<Image>::default();
-        let image_handle = image_assets.add(Image::default());
+        let image_handle: Handle<Image> = image_assets.add(Image::default());
         app.insert_resource(image_assets);
         let mesh_assets = Assets::<Mesh>::default();
         app.insert_resource(mesh_assets);

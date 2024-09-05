@@ -55,10 +55,8 @@ fn setup(
 
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Sphere::new(RADIUS).mesh().ico(9).unwrap())
-                .into(),
-            material: materials.add(Color::WHITE).into(),
+            mesh: meshes.add(Sphere::new(RADIUS).mesh().ico(9).unwrap()),
+            material: materials.add(Color::WHITE),
         },
         Transform::from_scale(Vec3::NEG_ONE),
     ));
@@ -110,10 +108,7 @@ fn setup(
     // add one cube, the only one with strong handles
     // also serves as a reference point during rotation
     commands.spawn((
-        PbrBundle {
-            mesh: mesh.into(),
-            material: material.into(),
-        },
+        PbrBundle { mesh, material },
         Transform {
             translation: Vec3::new(0.0, RADIUS, 0.0),
             scale: Vec3::splat(5.0),

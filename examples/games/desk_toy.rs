@@ -10,7 +10,7 @@ use bevy::{
     app::AppExit,
     input::common_conditions::{input_just_pressed, input_just_released},
     prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2d},
+    sprite::{MaterialMesh2dBundle, Mesh2d, MeshMaterial2d},
     window::{PrimaryWindow, WindowLevel},
 };
 
@@ -128,10 +128,11 @@ fn setup(
     // Create a circle mesh. We will reuse this mesh for all our circles.
     let circle = Mesh2d(meshes.add(Circle { radius: 1.0 }));
     // Create the different materials we will use for each part of the eyes. For this demo they are basic [`ColorMaterial`]s.
-    let outline_material = materials.add(Color::BLACK);
-    let sclera_material = materials.add(Color::WHITE);
-    let pupil_material = materials.add(Color::srgb(0.2, 0.2, 0.2));
-    let pupil_highlight_material = materials.add(Color::srgba(1.0, 1.0, 1.0, 0.2));
+    let outline_material: MeshMaterial2d<ColorMaterial> = materials.add(Color::BLACK);
+    let sclera_material: MeshMaterial2d<ColorMaterial> = materials.add(Color::WHITE);
+    let pupil_material: MeshMaterial2d<ColorMaterial> = materials.add(Color::srgb(0.2, 0.2, 0.2));
+    let pupil_highlight_material: MeshMaterial2d<ColorMaterial> =
+        materials.add(Color::srgba(1.0, 1.0, 1.0, 0.2));
 
     // Spawn the Bevy logo sprite
     commands
@@ -149,7 +150,7 @@ fn setup(
                 commands.spawn((
                     MaterialMesh2dBundle {
                         mesh: circle.clone(),
-                        material: outline_material.clone().into(),
+                        material: outline_material.clone(),
                     },
                     Transform::from_xyz(x, y - 1.0, 1.0)
                         .with_scale(Vec2::splat(radius + 2.0).extend(1.0)),
@@ -165,7 +166,7 @@ fn setup(
                         commands.spawn((
                             MaterialMesh2dBundle {
                                 mesh: circle.clone(),
-                                material: sclera_material.clone().into(),
+                                material: sclera_material.clone(),
                             },
                             Transform::from_scale(Vec3::new(radius, radius, 0.0)),
                         ));
@@ -188,7 +189,7 @@ fn setup(
                                 commands.spawn((
                                     MaterialMesh2dBundle {
                                         mesh: circle.clone(),
-                                        material: pupil_material.clone().into(),
+                                        material: pupil_material.clone(),
                                     },
                                     Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(
                                         pupil_radius,
@@ -201,7 +202,7 @@ fn setup(
                                 commands.spawn((
                                     MaterialMesh2dBundle {
                                         mesh: circle.clone(),
-                                        material: pupil_highlight_material.clone().into(),
+                                        material: pupil_highlight_material.clone(),
                                     },
                                     Transform::from_xyz(
                                         -pupil_highlight_offset,

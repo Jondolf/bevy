@@ -146,7 +146,7 @@ impl<A: Asset + FromReflect> FromType<A> for ReflectAsset {
                 let mut assets = world.resource_mut::<Assets<A>>();
                 let value: A = FromReflect::from_reflect(value)
                     .expect("could not call `FromReflect::from_reflect` in `ReflectAsset::add`");
-                assets.add(value).untyped()
+                assets.add::<Handle<A>>(value).untyped()
             },
             insert: |world, handle, value| {
                 let mut assets = world.resource_mut::<Assets<A>>();

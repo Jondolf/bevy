@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 
 use bevy::{
     color::palettes::basic::{BLUE, LIME, RED},
-    pbr::{CascadeShadowConfigBuilder, NotShadowCaster, NotShadowReceiver},
+    pbr::{CascadeShadowConfigBuilder, Mesh3d, NotShadowCaster, NotShadowReceiver},
     prelude::*,
 };
 
@@ -37,13 +37,13 @@ fn setup(
         perceptual_roughness: 1.0,
         ..default()
     });
-    let sphere_handle = meshes.add(Sphere::new(sphere_radius));
+    let sphere_handle: Mesh3d = meshes.add(Sphere::new(sphere_radius));
 
     // sphere - initially a caster
     commands.spawn((
         PbrBundle {
-            mesh: sphere_handle.clone().into(),
-            material: materials.add(Color::from(RED)).into(),
+            mesh: sphere_handle.clone(),
+            material: materials.add(Color::from(RED)),
         },
         Transform::from_xyz(-1.0, spawn_height, 0.0),
     ));
@@ -51,8 +51,8 @@ fn setup(
     // sphere - initially not a caster
     commands.spawn((
         PbrBundle {
-            mesh: sphere_handle.into(),
-            material: materials.add(Color::from(BLUE)).into(),
+            mesh: sphere_handle,
+            material: materials.add(Color::from(BLUE)),
         },
         Transform::from_xyz(1.0, spawn_height, 0.0),
         NotShadowCaster,
@@ -61,10 +61,8 @@ fn setup(
     // floating plane - initially not a shadow receiver and not a caster
     commands.spawn((
         PbrBundle {
-            mesh: meshes
-                .add(Plane3d::default().mesh().size(20.0, 20.0))
-                .into(),
-            material: materials.add(Color::from(LIME)).into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(20.0, 20.0)),
+            material: materials.add(Color::from(LIME)),
         },
         Transform::from_xyz(0.0, 1.0, -10.0),
         NotShadowCaster,
@@ -73,10 +71,8 @@ fn setup(
 
     // lower ground plane - initially a shadow receiver
     commands.spawn(PbrBundle {
-        mesh: meshes
-            .add(Plane3d::default().mesh().size(20.0, 20.0))
-            .into(),
-        material: white_handle.into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(20.0, 20.0)),
+        material: white_handle,
     });
 
     println!("Using DirectionalLight");

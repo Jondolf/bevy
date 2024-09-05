@@ -17,8 +17,8 @@ fn setup(
 ) {
     // plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)).into(),
-        material: materials.add(Color::srgb(0.3, 0.5, 0.3)).into(),
+        mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)),
+        material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
     });
     // cube
     // Assign vertex colors based on vertex positions
@@ -34,11 +34,11 @@ fn setup(
     }
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(colorful_cube).into(),
+            mesh: meshes.add(colorful_cube),
             // This is the default color, but note that vertex colors are
             // multiplied by the base color, so you'll likely want this to be
             // white if using vertex colors.
-            material: materials.add(Color::srgb(1., 1., 1.)).into(),
+            material: materials.add(Color::srgb(1., 1., 1.)),
         },
         Transform::from_xyz(0.0, 0.5, 0.0),
     ));

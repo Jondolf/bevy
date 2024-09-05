@@ -57,8 +57,8 @@ fn setup(
     // Red cube: Never renders a wireframe
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials.add(Color::from(RED)).into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(Color::from(RED)),
         },
         Transform::from_xyz(-1.0, 0.5, -1.0),
         NoWireframe,
@@ -66,16 +66,16 @@ fn setup(
     // Orange cube: Follows global wireframe setting
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials.add(Color::from(ORANGE)).into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(Color::from(ORANGE)),
         },
         Transform::from_xyz(0.0, 0.5, 0.0),
     ));
     // Green cube: Always renders a wireframe
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Cuboid::default()).into(),
-            material: materials.add(Color::from(LIME)).into(),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(Color::from(LIME)),
         },
         Transform::from_xyz(1.0, 0.5, 1.0),
         Wireframe,
@@ -87,8 +87,8 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)).into(),
-            material: materials.add(Color::from(BLUE)).into(),
+            mesh: meshes.add(Plane3d::default().mesh().size(5.0, 5.0)),
+            material: materials.add(Color::from(BLUE)),
         },
         // You can insert this component without the `Wireframe` component
         // to override the color of the global wireframe for this mesh

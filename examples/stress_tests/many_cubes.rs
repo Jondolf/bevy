@@ -14,7 +14,7 @@ use argh::FromArgs;
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     math::{DVec2, DVec3},
-    pbr::NotShadowCaster,
+    pbr::{Mesh3d, MeshMaterial3d, NotShadowCaster},
     prelude::*,
     render::{
         batching::NoAutomaticBatching,
@@ -166,8 +166,8 @@ fn setup(
                 commands
                     .spawn((
                         PbrBundle {
-                            mesh: mesh.clone().into(),
-                            material: materials.choose(&mut material_rng).unwrap().clone().into(),
+                            mesh: mesh.clone(),
+                            material: materials.choose(&mut material_rng).unwrap().clone(),
                         },
                         Transform::from_translation((radius * unit_sphere_p).as_vec3())
                             .looking_at(Vec3::ZERO, Vec3::Y)
@@ -189,12 +189,8 @@ fn setup(
             // Inside-out box around the meshes onto which shadows are cast (though you cannot see them...)
             commands.spawn((
                 PbrBundle {
-                    mesh: mesh_assets
-                        .add(Cuboid::from_size(Vec3::splat(radius as f32 * 2.2)))
-                        .into(),
-                    material: material_assets
-                        .add(StandardMaterial::from(Color::WHITE))
-                        .into(),
+                    mesh: mesh_assets.add(Cuboid::from_size(Vec3::splat(radius as f32 * 2.2))),
+                    material: material_assets.add(StandardMaterial::from(Color::WHITE)),
                 },
                 Transform::from_scale(-Vec3::ONE),
                 NotShadowCaster,
@@ -213,15 +209,15 @@ fn setup(
                     // cube
                     commands.spawn((
                         PbrBundle {
-                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone().into(),
-                            material: materials.choose(&mut material_rng).unwrap().clone().into(),
+                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone(),
+                            material: materials.choose(&mut material_rng).unwrap().clone(),
                         },
                         Transform::from_xyz((x as f32) * scale, (y as f32) * scale, 0.0),
                     ));
                     commands.spawn((
                         PbrBundle {
-                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone().into(),
-                            material: materials.choose(&mut material_rng).unwrap().clone().into(),
+                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone(),
+                            material: materials.choose(&mut material_rng).unwrap().clone(),
                         },
                         Transform::from_xyz(
                             (x as f32) * scale,
@@ -231,15 +227,15 @@ fn setup(
                     ));
                     commands.spawn((
                         PbrBundle {
-                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone().into(),
-                            material: materials.choose(&mut material_rng).unwrap().clone().into(),
+                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone(),
+                            material: materials.choose(&mut material_rng).unwrap().clone(),
                         },
                         Transform::from_xyz((x as f32) * scale, 0.0, (y as f32) * scale),
                     ));
                     commands.spawn((
                         PbrBundle {
-                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone().into(),
-                            material: materials.choose(&mut material_rng).unwrap().clone().into(),
+                            mesh: meshes.choose(&mut material_rng).unwrap().0.clone(),
+                            material: materials.choose(&mut material_rng).unwrap().clone(),
                         },
                         Transform::from_xyz(0.0, (x as f32) * scale, (y as f32) * scale),
                     ));
@@ -254,12 +250,8 @@ fn setup(
             // Inside-out box around the meshes onto which shadows are cast (though you cannot see them...)
             commands.spawn((
                 PbrBundle {
-                    mesh: mesh_assets
-                        .add(Cuboid::from_size(2.0 * 1.1 * center))
-                        .into(),
-                    material: material_assets
-                        .add(StandardMaterial::from(Color::WHITE))
-                        .into(),
+                    mesh: mesh_assets.add(Cuboid::from_size(2.0 * 1.1 * center)),
+                    material: material_assets.add(StandardMaterial::from(Color::WHITE)),
                 },
                 Transform::from_scale(-Vec3::ONE).with_translation(center),
                 NotShadowCaster,
@@ -306,7 +298,7 @@ fn init_materials(
     args: &Args,
     textures: &[Handle<Image>],
     assets: &mut Assets<StandardMaterial>,
-) -> Vec<Handle<StandardMaterial>> {
+) -> Vec<MeshMaterial3d<StandardMaterial>> {
     let capacity = if args.vary_material_data_per_instance {
         match args.layout {
             Layout::Cube => (WIDTH - WIDTH / 10) * (HEIGHT - HEIGHT / 10),
@@ -342,7 +334,7 @@ fn init_materials(
     materials
 }
 
-fn init_meshes(args: &Args, assets: &mut Assets<Mesh>) -> Vec<(Handle<Mesh>, Transform)> {
+fn init_meshes(args: &Args, assets: &mut Assets<Mesh>) -> Vec<(Mesh3d, Transform)> {
     let capacity = args.mesh_count.max(1);
 
     // We're seeding the PRNG here to make this example deterministic for testing purposes.

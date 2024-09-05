@@ -139,7 +139,7 @@ fn assign_clips(
             warn!("Animation targets referenced a nonexistent player. This shouldn't happen.");
             continue;
         };
-        let graph = graphs.add(graph);
+        let graph: Handle<AnimationGraph> = graphs.add(graph);
         let animations = Clips::new(clips);
         player.play(animations.current()).repeat();
         commands

@@ -4,6 +4,7 @@ use std::f32::consts::PI;
 
 use bevy::{
     color::palettes::css::GOLD,
+    pbr::{Mesh3d, MeshMaterial3d},
     prelude::*,
     render::{
         camera::RenderTarget,
@@ -48,7 +49,7 @@ fn setup(
     image.texture_descriptor.usage =
         TextureUsages::TEXTURE_BINDING | TextureUsages::COPY_DST | TextureUsages::RENDER_ATTACHMENT;
 
-    let image_handle = images.add(image);
+    let image_handle: Handle<Image> = images.add(image);
 
     // Light
     commands.spawn(DirectionalLightBundle::default());
@@ -92,10 +93,10 @@ fn setup(
         });
 
     let cube_size = 4.0;
-    let cube_handle = meshes.add(Cuboid::new(cube_size, cube_size, cube_size));
+    let cube_handle: Mesh3d = meshes.add(Cuboid::new(cube_size, cube_size, cube_size));
 
     // This material has the texture that has been rendered.
-    let material_handle = materials.add(StandardMaterial {
+    let material_handle: MeshMaterial3d<StandardMaterial> = materials.add(StandardMaterial {
         base_color_texture: Some(image_handle),
         reflectance: 0.02,
         unlit: false,
@@ -106,8 +107,8 @@ fn setup(
     // Cube with material containing the rendered UI texture.
     commands.spawn((
         PbrBundle {
-            mesh: cube_handle.into(),
-            material: material_handle.into(),
+            mesh: cube_handle,
+            material: material_handle,
         },
         Transform::from_xyz(0.0, 0.0, 1.5).with_rotation(Quat::from_rotation_x(-PI / 5.0)),
         Cube,

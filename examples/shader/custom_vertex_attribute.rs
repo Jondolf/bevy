@@ -45,12 +45,10 @@ fn setup(
     // cube
     commands.spawn((
         MaterialMesh3dBundle {
-            mesh: meshes.add(mesh).into(),
-            material: materials
-                .add(CustomMaterial {
-                    color: LinearRgba::WHITE,
-                })
-                .into(),
+            mesh: meshes.add(mesh),
+            material: materials.add(CustomMaterial {
+                color: LinearRgba::WHITE,
+            }),
         },
         Transform::from_xyz(0.0, 0.5, 0.0),
     ));
