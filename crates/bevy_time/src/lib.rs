@@ -185,7 +185,7 @@ mod tests {
     use crate::{Fixed, Time, TimePlugin, TimeUpdateStrategy, Virtual};
     use bevy_app::{App, FixedUpdate, Startup, Update};
     use bevy_ecs::{
-        event::{Event, EventReader, EventRegistry, EventWriter, Events, ShouldUpdateEvents},
+        event::{EventReader, EventRegistry, EventWriter, Events, GlobalEvent, ShouldUpdateEvents},
         resource::Resource,
         system::{Local, Res, ResMut},
     };
@@ -193,12 +193,12 @@ mod tests {
     use core::time::Duration;
     use std::println;
 
-    #[derive(Event)]
-    struct TestEvent<T: Default> {
+    #[derive(GlobalEvent)]
+    struct TestEvent<T: Default + Send + Sync + 'static> {
         sender: std::sync::mpsc::Sender<T>,
     }
 
-    impl<T: Default> Drop for TestEvent<T> {
+    impl<T: Default + Send + Sync + 'static> Drop for TestEvent<T> {
         fn drop(&mut self) {
             self.sender
                 .send(T::default())
@@ -206,7 +206,7 @@ mod tests {
         }
     }
 
-    #[derive(Event)]
+    #[derive(GlobalEvent)]
     struct DummyEvent;
 
     #[derive(Resource, Default)]

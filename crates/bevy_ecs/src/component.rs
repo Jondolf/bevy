@@ -15,7 +15,7 @@ use crate::{
 use alloc::boxed::Box;
 use alloc::{borrow::Cow, format, vec::Vec};
 pub use bevy_ecs_macros::Component;
-use bevy_ecs_macros::Event;
+use bevy_ecs_macros::GlobalEvent;
 use bevy_platform::sync::Arc;
 use bevy_platform::{
     collections::{HashMap, HashSet},
@@ -2394,8 +2394,8 @@ impl Tick {
     }
 }
 
-/// An observer [`Event`] that can be used to maintain [`Tick`]s in custom data structures, enabling to make
-/// use of bevy's periodic checks that clamps ticks to a certain range, preventing overflows and thus
+/// An observer [`GlobalEvent`] that can be used to maintain [`Tick`]s in custom data structures, enabling
+/// to make use of bevy's periodic checks that clamps ticks to a certain range, preventing overflows and thus
 /// keeping methods like [`Tick::is_newer_than`] reliably return `false` for ticks that got too old.
 ///
 /// # Example
@@ -2419,7 +2419,7 @@ impl Tick {
 ///     schedule.0.check_change_ticks(tick.get());
 /// });
 /// ```
-#[derive(Debug, Clone, Copy, Event)]
+#[derive(Debug, Clone, Copy, GlobalEvent)]
 pub struct CheckChangeTicks(pub(crate) Tick);
 
 impl CheckChangeTicks {

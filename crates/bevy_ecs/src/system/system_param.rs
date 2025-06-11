@@ -57,7 +57,7 @@ use variadics_please::{all_tuples, all_tuples_enumerated};
 /// # use bevy_ecs::prelude::*;
 /// # #[derive(Resource)]
 /// # struct SomeResource;
-/// # #[derive(Event)]
+/// # #[derive(GlobalEvent)]
 /// # struct SomeEvent;
 /// # #[derive(Resource)]
 /// # struct SomeOtherResource;
@@ -576,7 +576,7 @@ unsafe impl<'w, 's, D: ReadOnlyQueryData + 'static, F: QueryFilter + 'static> Re
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// #
-/// # #[derive(Event)]
+/// # #[derive(GlobalEvent)]
 /// # struct MyEvent;
 /// # impl MyEvent {
 /// #   pub fn new() -> Self { Self }
@@ -2816,9 +2816,9 @@ mod tests {
     #[test]
     #[should_panic = "Encountered an error in system `bevy_ecs::system::system_param::tests::missing_event_error::event_system`: Parameter `EventReader<MissingEvent>::events` failed validation: Event not initialized"]
     fn missing_event_error() {
-        use crate::prelude::{Event, EventReader};
+        use crate::prelude::{EventReader, GlobalEvent};
 
-        #[derive(Event)]
+        #[derive(GlobalEvent)]
         pub struct MissingEvent;
 
         let mut schedule = crate::schedule::Schedule::default();

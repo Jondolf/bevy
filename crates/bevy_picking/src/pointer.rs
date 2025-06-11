@@ -269,7 +269,7 @@ pub enum PointerAction {
 }
 
 /// An input event effecting a pointer.
-#[derive(Event, Debug, Clone, Reflect)]
+#[derive(GlobalEvent, Debug, Clone, Reflect)]
 #[reflect(Clone)]
 pub struct PointerInput {
     /// The id of the pointer.

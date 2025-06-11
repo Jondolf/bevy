@@ -53,8 +53,8 @@ fn setup(mut commands: Commands) {
 // - **auto_propagate:**
 // We can also choose whether or not this event will propagate by default when triggered. If this is
 // false, it will only propagate following a call to `Trigger::propagate(true)`.
-#[derive(Clone, Component, Event)]
-#[event(traversal = &'static ChildOf, auto_propagate)]
+#[derive(Clone, Component, TargetedEvent)]
+#[targeted_event(traversal = &'static ChildOf, auto_propagate)]
 struct Attack {
     damage: u16,
 }

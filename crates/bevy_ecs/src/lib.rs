@@ -74,7 +74,7 @@ pub mod prelude {
         component::Component,
         entity::{ContainsEntity, Entity, EntityMapper},
         error::{BevyError, Result},
-        event::{Event, EventMutator, EventReader, EventWriter, Events},
+        event::{EventMutator, EventReader, EventWriter, Events, GlobalEvent, TargetedEvent},
         hierarchy::{ChildOf, ChildSpawner, ChildSpawnerCommands, Children},
         lifecycle::{OnAdd, OnDespawn, OnInsert, OnRemove, OnReplace, RemovedComponents},
         name::{Name, NameOrEntity},
@@ -130,7 +130,7 @@ pub mod __macro_exports {
 ///
 /// Systems should refresh their inner pointers.
 #[cfg(feature = "hotpatching")]
-#[derive(Event, Default)]
+#[derive(GlobalEvent, Default)]
 pub struct HotPatched;
 
 #[cfg(test)]

@@ -568,10 +568,16 @@ pub(crate) fn bevy_ecs_path() -> syn::Path {
     BevyManifest::shared().get_path("bevy_ecs")
 }
 
-/// Implement the `Event` trait.
-#[proc_macro_derive(Event, attributes(event))]
-pub fn derive_event(input: TokenStream) -> TokenStream {
-    component::derive_event(input)
+/// Implement the `GlobalEvent` trait.
+#[proc_macro_derive(GlobalEvent)]
+pub fn derive_global_event(input: TokenStream) -> TokenStream {
+    component::derive_global_event(input)
+}
+
+/// Implement the `TargetedEvent` trait.
+#[proc_macro_derive(TargetedEvent, attributes(targeted_event))]
+pub fn derive_targeted_event(input: TokenStream) -> TokenStream {
+    component::derive_targeted_event(input)
 }
 
 /// Implement the `Resource` trait.

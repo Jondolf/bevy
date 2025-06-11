@@ -13,7 +13,7 @@ use crate::{
         ContainsEntity, Entity, EntityCloner, EntityClonerBuilder, EntityEquivalent,
         EntityIdLocation, EntityLocation,
     },
-    event::Event,
+    event::TargetedEvent,
     lifecycle::{ON_DESPAWN, ON_REMOVE, ON_REPLACE},
     observer::Observer,
     query::{Access, DebugCheckedUnwrap, ReadOnlyQueryData},
@@ -2626,7 +2626,7 @@ impl<'w> EntityWorldMut<'w> {
     /// # Panics
     ///
     /// If the entity has been despawned while this `EntityWorldMut` is still alive.
-    pub fn trigger(&mut self, event: impl Event) -> &mut Self {
+    pub fn trigger(&mut self, event: impl TargetedEvent) -> &mut Self {
         self.assert_not_despawned();
         self.world.trigger_targets(event, self.entity);
         self.world.flush();
@@ -2643,14 +2643,14 @@ impl<'w> EntityWorldMut<'w> {
     ///
     /// Panics if the given system is an exclusive system.
     #[track_caller]
-    pub fn observe<E: Event, B: Bundle, M>(
+    pub fn observe<E: TargetedEvent, B: Bundle, M>(
         &mut self,
         observer: impl IntoObserverSystem<E, B, M>,
     ) -> &mut Self {
         self.observe_with_caller(observer, MaybeLocation::caller())
     }
 
-    pub(crate) fn observe_with_caller<E: Event, B: Bundle, M>(
+    pub(crate) fn observe_with_caller<E: TargetedEvent, B: Bundle, M>(
         &mut self,
         observer: impl IntoObserverSystem<E, B, M>,
         caller: MaybeLocation,
@@ -4750,6 +4750,7 @@ unsafe impl DynamicComponentFetch for &'_ HashSet<ComponentId> {
 #[cfg(test)]
 mod tests {
     use alloc::{vec, vec::Vec};
+    use bevy_ecs_macros::TargetedEvent;
     use bevy_ptr::{OwningPtr, Ptr};
     use core::panic::AssertUnwindSafe;
     use std::sync::OnceLock;
@@ -5739,7 +5740,7 @@ mod tests {
         assert_eq!((&mut X(8), &mut Y(9)), (x_component, y_component));
     }
 
-    #[derive(Event)]
+    #[derive(TargetedEvent)]
     struct TestEvent;
 
     #[test]

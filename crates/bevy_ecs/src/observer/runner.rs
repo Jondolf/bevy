@@ -4,6 +4,7 @@ use core::any::Any;
 use crate::{
     component::{ComponentId, Mutable, StorageType},
     error::{ErrorContext, ErrorHandler},
+    event::Event,
     lifecycle::{ComponentHook, HookContext},
     observer::{ObserverDescriptor, ObserverTrigger},
     prelude::*,
@@ -21,20 +22,21 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 
 /// An [`Observer`] system. Add this [`Component`] to an [`Entity`] to turn it into an "observer".
 ///
-/// Observers listen for a "trigger" of a specific [`Event`]. Events are triggered by calling [`World::trigger`] or [`World::trigger_targets`].
+/// Observers listen for a "trigger" of a specific [`Event`]. Events are triggered by calling [`World::trigger`]
+/// or [`World::trigger_targets`].
 ///
-/// Note that "buffered" events sent using [`EventReader`] and [`EventWriter`] are _not_ automatically triggered. They must be triggered at a specific
-/// point in the schedule.
+///
+/// Note that "buffered" events sent using [`EventReader`] and [`EventWriter`] are _not_ automatically triggered.
+/// They must be triggered at a specific point in the schedule.
 ///
 /// # Usage
 ///
-/// The simplest usage
-/// of the observer pattern looks like this:
+/// The simplest usage of the observer pattern looks like this:
 ///
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
-/// #[derive(Event)]
+/// #[derive(TargetedEvent)]
 /// struct Speak {
 ///     message: String,
 /// }
@@ -57,7 +59,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct Speak;
 /// // These are functionally the same:
 /// world.add_observer(|trigger: Trigger<Speak>| {});
@@ -69,7 +71,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct PrintNames;
 /// # #[derive(Component, Debug)]
 /// # struct Name;
@@ -87,7 +89,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct SpawnThing;
 /// # #[derive(Component, Debug)]
 /// # struct Thing;
@@ -101,9 +103,9 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct A;
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct B;
 /// world.add_observer(|trigger: Trigger<A>, mut commands: Commands| {
 ///     commands.trigger(B);
@@ -114,13 +116,14 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// recursively evaluated until there are no commands left, meaning nested triggers all
 /// evaluate at the same time!
 ///
-/// Events can be triggered for entities, which will be passed to the [`Observer`]:
+/// If the event is a [`TargetedEvent`], it can be triggered for entities,
+/// which will be passed to the [`Observer`]:
 ///
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
 /// # let entity = world.spawn_empty().id();
-/// #[derive(Event)]
+/// #[derive(TargetedEvent)]
 /// struct Explode;
 ///
 /// world.add_observer(|trigger: Trigger<Explode>, mut commands: Commands| {
@@ -140,7 +143,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// # let mut world = World::default();
 /// # let e1 = world.spawn_empty().id();
 /// # let e2 = world.spawn_empty().id();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct Explode;
 /// world.trigger_targets(Explode, [e1, e2]);
 /// ```
@@ -154,7 +157,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// # let mut world = World::default();
 /// # let e1 = world.spawn_empty().id();
 /// # let e2 = world.spawn_empty().id();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct Explode;
 /// world.entity_mut(e1).observe(|trigger: Trigger<Explode>, mut commands: Commands| {
 ///     println!("Boom!");
@@ -176,7 +179,7 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// # use bevy_ecs::prelude::*;
 /// # let mut world = World::default();
 /// # let entity = world.spawn_empty().id();
-/// # #[derive(Event)]
+/// # #[derive(TargetedEvent)]
 /// # struct Explode;
 /// let mut observer = Observer::new(|trigger: Trigger<Explode>| {});
 /// observer.watch_entity(entity);
@@ -447,11 +450,11 @@ mod tests {
     use super::*;
     use crate::{
         error::{ignore, DefaultErrorHandler},
-        event::Event,
+        event::TargetedEvent,
         observer::Trigger,
     };
 
-    #[derive(Event)]
+    #[derive(TargetedEvent)]
     struct TriggerEvent;
 
     #[test]

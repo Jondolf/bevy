@@ -12,7 +12,7 @@ use crate::{
     change_detection::MaybeLocation,
     component::{Component, ComponentId, ComponentInfo},
     entity::{Entity, EntityClonerBuilder},
-    event::Event,
+    event::TargetedEvent,
     relationship::RelationshipHookMode,
     system::IntoObserverSystem,
     world::{error::EntityMutableFetchError, EntityWorldMut, FromWorld},
@@ -218,7 +218,7 @@ pub fn despawn() -> impl EntityCommand {
 /// An [`EntityCommand`] that creates an [`Observer`](crate::observer::Observer)
 /// listening for events of type `E` targeting an entity
 #[track_caller]
-pub fn observe<E: Event, B: Bundle, M>(
+pub fn observe<E: TargetedEvent, B: Bundle, M>(
     observer: impl IntoObserverSystem<E, B, M>,
 ) -> impl EntityCommand {
     let caller = MaybeLocation::caller();
@@ -229,9 +229,9 @@ pub fn observe<E: Event, B: Bundle, M>(
 
 /// An [`EntityCommand`] that sends a [`Trigger`](crate::observer::Trigger) targeting an entity.
 ///
-/// This will run any [`Observer`](crate::observer::Observer) of the given [`Event`] watching the entity.
+/// This will run any [`Observer`](crate::observer::Observer) of the given [`TargetedEvent`] watching the entity.
 #[track_caller]
-pub fn trigger(event: impl Event) -> impl EntityCommand {
+pub fn trigger(event: impl TargetedEvent) -> impl EntityCommand {
     let caller = MaybeLocation::caller();
     move |mut entity: EntityWorldMut| {
         let id = entity.id();

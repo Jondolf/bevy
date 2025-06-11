@@ -277,14 +277,15 @@ world.spawn(PlayerBundle {
 });
 ```
 
-### Events
+### Global Events
 
-Events offer a communication channel between one or more systems. Events can be sent using the system parameter `EventWriter` and received with `EventReader`.
+Global events offer a communication channel between one or more systems. They can be sent
+using the system parameter `EventWriter` and received with `EventReader`.
 
 ```rust
 use bevy_ecs::prelude::*;
 
-#[derive(Event)]
+#[derive(GlobalEvent)]
 struct MyEvent {
     message: String,
 }
@@ -303,12 +304,12 @@ fn reader(mut reader: EventReader<MyEvent>) {
 
 ### Observers
 
-Observers are systems that listen for a "trigger" of a specific `Event`:
+Observers are systems that listen for a "trigger" of a specific event:
 
 ```rust
 use bevy_ecs::prelude::*;
 
-#[derive(Event)]
+#[derive(GlobalEvent)]
 struct MyEvent {
     message: String
 }
@@ -328,12 +329,12 @@ world.trigger(MyEvent {
 
 These differ from `EventReader` and `EventWriter` in that they are "reactive". Rather than happening at a specific point in a schedule, they happen _immediately_ whenever a trigger happens. Triggers can trigger other triggers, and they all will be evaluated at the same time!
 
-Events can also be triggered to target specific entities:
+If the event is a `TargetedEvent`, it can also be triggered to target specific entities:
 
 ```rust
 use bevy_ecs::prelude::*;
 
-#[derive(Event)]
+#[derive(TargetedEvent)]
 struct Explode;
 
 let mut world = World::new();

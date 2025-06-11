@@ -11,7 +11,7 @@ pub use bevy_derive::AppLabel;
 use bevy_ecs::{
     component::RequiredComponentsError,
     error::{DefaultErrorHandler, ErrorHandler},
-    event::{event_update_system, EventCursor},
+    event::{event_update_system, Event, EventCursor},
     intern::Interned,
     prelude::*,
     schedule::{InternedSystemSet, ScheduleBuildSettings, ScheduleLabel},
@@ -352,7 +352,7 @@ impl App {
     /// # use bevy_app::prelude::*;
     /// # use bevy_ecs::prelude::*;
     /// #
-    /// # #[derive(Event)]
+    /// # #[derive(GlobalEvent)]
     /// # struct MyEvent;
     /// # let mut app = App::new();
     /// #
@@ -360,7 +360,7 @@ impl App {
     /// ```
     pub fn add_event<T>(&mut self) -> &mut Self
     where
-        T: Event,
+        T: GlobalEvent,
     {
         self.main_mut().add_event::<T>();
         self
@@ -1317,12 +1317,12 @@ impl App {
     /// #
     /// # let mut app = App::new();
     /// #
-    /// # #[derive(Event)]
+    /// # #[derive(GlobalEvent)]
     /// # struct Party {
     /// #   friends_allowed: bool,
     /// # };
     /// #
-    /// # #[derive(Event)]
+    /// # #[derive(TargetedEvent)]
     /// # struct Invite;
     /// #
     /// # #[derive(Component)]
@@ -1414,7 +1414,7 @@ fn run_once(mut app: App) -> AppExit {
 /// This type is roughly meant to map to a standard definition of a process exit code (0 means success, not 0 means error). Due to portability concerns
 /// (see [`ExitCode`](https://doc.rust-lang.org/std/process/struct.ExitCode.html) and [`process::exit`](https://doc.rust-lang.org/std/process/fn.exit.html#))
 /// we only allow error codes between 1 and [255](u8::MAX).
-#[derive(Event, Debug, Clone, Default, PartialEq, Eq)]
+#[derive(GlobalEvent, Debug, Clone, Default, PartialEq, Eq)]
 pub enum AppExit {
     /// [`App`] exited without any problems.
     #[default]
@@ -1482,7 +1482,7 @@ mod tests {
         change_detection::{DetectChanges, ResMut},
         component::Component,
         entity::Entity,
-        event::{Event, EventWriter, Events},
+        event::{Event, EventWriter, Events, GlobalEvent},
         lifecycle::RemovedComponents,
         query::With,
         resource::Resource,
@@ -1848,7 +1848,7 @@ mod tests {
     }
     #[test]
     fn events_should_be_updated_once_per_update() {
-        #[derive(Event, Clone)]
+        #[derive(GlobalEvent, Clone)]
         struct TestEvent;
 
         let mut app = App::new();

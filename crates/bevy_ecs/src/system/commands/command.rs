@@ -9,7 +9,7 @@ use crate::{
     change_detection::MaybeLocation,
     entity::Entity,
     error::Result,
-    event::{Event, Events},
+    event::{Event, Events, GlobalEvent, TargetedEvent},
     observer::TriggerTargets,
     resource::Resource,
     schedule::ScheduleLabel,
@@ -219,7 +219,7 @@ pub fn trigger(event: impl Event) -> impl Command {
 
 /// A [`Command`] that sends a [`Trigger`](crate::observer::Trigger) for the given targets.
 pub fn trigger_targets(
-    event: impl Event,
+    event: impl TargetedEvent,
     targets: impl TriggerTargets + Send + Sync + 'static,
 ) -> impl Command {
     let caller = MaybeLocation::caller();
@@ -230,7 +230,7 @@ pub fn trigger_targets(
 
 /// A [`Command`] that sends an arbitrary [`Event`].
 #[track_caller]
-pub fn send_event<E: Event>(event: E) -> impl Command {
+pub fn send_event<E: GlobalEvent>(event: E) -> impl Command {
     let caller = MaybeLocation::caller();
     move |world: &mut World| {
         let mut events = world.resource_mut::<Events<E>>();

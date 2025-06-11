@@ -140,6 +140,7 @@ impl SystemMeta {
 /// [`SystemState`] values created can be cached to improve performance,
 /// and *must* be cached and reused in order for system parameters that rely on local state to work correctly.
 /// These include:
+///
 /// - [`Added`](crate::query::Added), [`Changed`](crate::query::Changed) and [`Spawned`](crate::query::Spawned) query filters
 /// - [`Local`](crate::system::Local) variables that hold state
 /// - [`EventReader`](crate::event::EventReader) system parameters, which rely on a [`Local`](crate::system::Local) to track which events have been seen
@@ -149,12 +150,13 @@ impl SystemMeta {
 /// # Example
 ///
 /// Basic usage:
+///
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # use bevy_ecs::system::SystemState;
 /// # use bevy_ecs::event::Events;
 /// #
-/// # #[derive(Event)]
+/// # #[derive(GlobalEvent)]
 /// # struct MyEvent;
 /// # #[derive(Resource)]
 /// # struct MyResource(u32);
@@ -181,13 +183,15 @@ impl SystemMeta {
 /// // If you are using `Commands`, you can choose when you want to apply them to the world.
 /// // You need to manually call `.apply(world)` on the `SystemState` to apply them.
 /// ```
+///
 /// Caching:
+///
 /// ```
 /// # use bevy_ecs::prelude::*;
 /// # use bevy_ecs::system::SystemState;
 /// # use bevy_ecs::event::Events;
 /// #
-/// # #[derive(Event)]
+/// # #[derive(GlobalEvent)]
 /// # struct MyEvent;
 /// #[derive(Resource)]
 /// struct CachedSystemState {

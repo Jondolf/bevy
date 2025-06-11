@@ -771,6 +771,7 @@ mod tests {
 
     mod system_ambiguity {
         use alloc::collections::BTreeSet;
+        use bevy_ecs_macros::GlobalEvent;
 
         use super::*;
         use crate::prelude::*;
@@ -785,7 +786,7 @@ mod tests {
         struct B;
 
         // An event type
-        #[derive(Event)]
+        #[derive(GlobalEvent)]
         struct E;
 
         #[derive(Resource, Component)]

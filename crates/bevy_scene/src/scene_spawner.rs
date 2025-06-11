@@ -2,7 +2,7 @@ use crate::{DynamicScene, Scene};
 use bevy_asset::{AssetEvent, AssetId, Assets, Handle};
 use bevy_ecs::{
     entity::{Entity, EntityHashMap},
-    event::{Event, EventCursor, Events},
+    event::{EventCursor, Events, TargetedEvent},
     hierarchy::ChildOf,
     reflect::AppTypeRegistry,
     resource::Resource,
@@ -25,7 +25,7 @@ use bevy_ecs::{
 /// See also [`Trigger`], [`SceneSpawner::instance_is_ready`].
 ///
 /// [`Trigger`]: bevy_ecs::observer::Trigger
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Event, Reflect)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, TargetedEvent, Reflect)]
 #[reflect(Debug, PartialEq, Clone)]
 pub struct SceneInstanceReady {
     /// Instance which has been spawned.

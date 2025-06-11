@@ -3,7 +3,7 @@ use core::marker::PhantomData;
 
 use bevy_app::{App, SubApp};
 use bevy_ecs::{
-    event::{Event, EventReader, Events},
+    event::{EventReader, Events, GlobalEvent},
     resource::Resource,
     system::Commands,
     world::World,
@@ -12,7 +12,7 @@ use bevy_platform::collections::HashMap;
 
 use crate::state::{OnEnter, OnExit, StateTransitionEvent, States};
 
-fn clear_event_queue<E: Event>(w: &mut World) {
+fn clear_event_queue<E: GlobalEvent>(w: &mut World) {
     if let Some(mut queue) = w.get_resource_mut::<Events<E>>() {
         queue.clear();
     }
@@ -33,7 +33,7 @@ struct StateScopedEvents<S: States> {
 }
 
 impl<S: States> StateScopedEvents<S> {
-    fn add_event<E: Event>(&mut self, state: S, transition_type: TransitionType) {
+    fn add_event<E: GlobalEvent>(&mut self, state: S, transition_type: TransitionType) {
         let map = match transition_type {
             TransitionType::OnExit => &mut self.on_exit,
             TransitionType::OnEnter => &mut self.on_enter,
@@ -106,7 +106,7 @@ fn clear_events_on_enter_state<S: States>(
     });
 }
 
-fn clear_events_on_state_transition<E: Event, S: States>(
+fn clear_events_on_state_transition<E: GlobalEvent, S: States>(
     app: &mut SubApp,
     _p: PhantomData<E>,
     state: S,
@@ -128,7 +128,7 @@ fn clear_events_on_state_transition<E: Event, S: States>(
 
 /// Extension trait for [`App`] adding methods for registering state scoped events.
 pub trait StateScopedEventsAppExt {
-    /// Clears an [`Event`] when exiting the specified `state`.
+    /// Clears an [`GlobalEvent`] when exiting the specified `state`.
     ///
     /// Note that event cleanup is ambiguously ordered relative to  
     /// [`DespawnOnExitState`](crate::prelude::DespawnOnExitState) entity cleanup,
@@ -136,9 +136,9 @@ pub trait StateScopedEventsAppExt {
     /// All of these (state scoped entities and events cleanup, and `OnExit`)
     /// occur within schedule [`StateTransition`](crate::prelude::StateTransition)
     /// and system set `StateTransitionSystems::ExitSchedules`.
-    fn clear_events_on_exit_state<E: Event>(&mut self, state: impl States) -> &mut Self;
+    fn clear_events_on_exit_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self;
 
-    /// Clears an [`Event`] when entering the specified `state`.
+    /// Clears an [`GlobalEvent`] when entering the specified `state`.
     ///
     /// Note that event cleanup is ambiguously ordered relative to
     /// [`DespawnOnEnterState`](crate::prelude::DespawnOnEnterState) entity cleanup,
@@ -146,11 +146,11 @@ pub trait StateScopedEventsAppExt {
     /// All of these (state scoped entities and events cleanup, and `OnEnter`)
     /// occur within schedule [`StateTransition`](crate::prelude::StateTransition)
     /// and system set `StateTransitionSystems::EnterSchedules`.
-    fn clear_events_on_enter_state<E: Event>(&mut self, state: impl States) -> &mut Self;
+    fn clear_events_on_enter_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self;
 }
 
 impl StateScopedEventsAppExt for App {
-    fn clear_events_on_exit_state<E: Event>(&mut self, state: impl States) -> &mut Self {
+    fn clear_events_on_exit_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self {
         clear_events_on_state_transition(
             self.main_mut(),
             PhantomData::<E>,
@@ -160,7 +160,7 @@ impl StateScopedEventsAppExt for App {
         self
     }
 
-    fn clear_events_on_enter_state<E: Event>(&mut self, state: impl States) -> &mut Self {
+    fn clear_events_on_enter_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self {
         clear_events_on_state_transition(
             self.main_mut(),
             PhantomData::<E>,
@@ -172,12 +172,12 @@ impl StateScopedEventsAppExt for App {
 }
 
 impl StateScopedEventsAppExt for SubApp {
-    fn clear_events_on_exit_state<E: Event>(&mut self, state: impl States) -> &mut Self {
+    fn clear_events_on_exit_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self {
         clear_events_on_state_transition(self, PhantomData::<E>, state, TransitionType::OnExit);
         self
     }
 
-    fn clear_events_on_enter_state<E: Event>(&mut self, state: impl States) -> &mut Self {
+    fn clear_events_on_enter_state<E: GlobalEvent>(&mut self, state: impl States) -> &mut Self {
         clear_events_on_state_transition(self, PhantomData::<E>, state, TransitionType::OnEnter);
         self
     }
@@ -196,10 +196,10 @@ mod tests {
         B,
     }
 
-    #[derive(Event, Debug)]
+    #[derive(GlobalEvent, Debug)]
     struct StandardEvent;
 
-    #[derive(Event, Debug)]
+    #[derive(GlobalEvent, Debug)]
     struct StateScopedEvent;
 
     #[test]

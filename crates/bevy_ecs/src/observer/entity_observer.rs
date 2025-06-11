@@ -108,15 +108,16 @@ fn component_clone_observed_by(_source: &SourceComponent, ctx: &mut ComponentClo
 
 #[cfg(test)]
 mod tests {
+    use bevy_ecs_macros::TargetedEvent;
+
     use crate::{
-        entity::EntityCloner, event::Event, observer::Trigger, resource::Resource, system::ResMut,
-        world::World,
+        entity::EntityCloner, observer::Trigger, resource::Resource, system::ResMut, world::World,
     };
 
     #[derive(Resource, Default)]
     struct Num(usize);
 
-    #[derive(Event)]
+    #[derive(TargetedEvent)]
     struct E;
 
     #[test]

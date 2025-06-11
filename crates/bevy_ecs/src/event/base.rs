@@ -13,51 +13,18 @@ use core::{
 
 /// Something that "happens" and might be read / observed by app logic.
 ///
-/// Events can be stored in an [`Events<E>`] resource
-/// You can conveniently access events using the [`EventReader`] and [`EventWriter`] system parameter.
+/// An event can be either a [`GlobalEvent`] sent to [`EventReader`]s or global [`Observer`]s,
+/// or a [`TargetedEvent`] that is triggered for a specific [`Entity`] or set of [`Entity`]s
+/// and can be observed by [`Observer`]s and even propagated to other entities.
 ///
-/// Events can also be "triggered" on a [`World`], which will then cause any [`Observer`] of that trigger to run.
+/// See [`GlobalEvent`] and [`TargetedEvent`] for more details.
 ///
 /// Events must be thread-safe.
 ///
-/// ## Derive
-/// This trait can be derived.
-/// Adding `auto_propagate` sets [`Self::AUTO_PROPAGATE`] to true.
-/// Adding `traversal = "X"` sets [`Self::Traversal`] to be of type "X".
-///
-/// ```
-/// use bevy_ecs::prelude::*;
-///
-/// #[derive(Event)]
-/// #[event(auto_propagate)]
-/// struct MyEvent;
-/// ```
-///
-///
-/// [`World`]: crate::world::World
-/// [`ComponentId`]: crate::component::ComponentId
 /// [`Observer`]: crate::observer::Observer
-/// [`Events<E>`]: super::Events
+/// [`Entity`]: crate::entity::Entity
 /// [`EventReader`]: super::EventReader
-/// [`EventWriter`]: super::EventWriter
-#[diagnostic::on_unimplemented(
-    message = "`{Self}` is not an `Event`",
-    label = "invalid `Event`",
-    note = "consider annotating `{Self}` with `#[derive(Event)]`"
-)]
 pub trait Event: Send + Sync + 'static {
-    /// The component that describes which Entity to propagate this event to next, when [propagation] is enabled.
-    ///
-    /// [propagation]: crate::observer::Trigger::propagate
-    type Traversal: Traversal<Self>;
-
-    /// When true, this event will always attempt to propagate when [triggered], without requiring a call
-    /// to [`Trigger::propagate`].
-    ///
-    /// [triggered]: crate::system::Commands::trigger_targets
-    /// [`Trigger::propagate`]: crate::observer::Trigger::propagate
-    const AUTO_PROPAGATE: bool = false;
-
     /// Generates the [`ComponentId`] for this event type.
     ///
     /// If this type has already been registered,
@@ -87,6 +54,95 @@ pub trait Event: Send + Sync + 'static {
     fn component_id(world: &World) -> Option<ComponentId> {
         world.component_id::<EventWrapperComponent<Self>>()
     }
+}
+
+/// A global [`Event`] that app logic can react to.
+///
+/// Global events can be written with the [`EventWriter`] and read using the [`EventReader`] system parameter.
+/// These events are stored in the [`Events<E>`] resource, and are useful for a "pull" model of event handling
+/// where many events are processed at once in a system scheduled to run at a specific time.
+///
+/// Global events can also be "triggered" on a [`World`], which will then cause any [`Observer`] of that trigger to run.
+/// This is useful for a "push" model of event handling where events are processed immediately after they are sent,
+/// at the next command flush.
+///
+/// Unlike [`TargetedEvent`], global events are not associated with a specific [`Entity`].
+///
+/// Events must be thread-safe.
+///
+/// ## Derive
+///
+/// This trait can be easily derived:
+///
+/// ```
+/// use bevy_ecs::prelude::*;
+///
+/// #[derive(GlobalEvent)]
+/// struct MyEvent;
+/// ```
+///
+/// This will also automatically implement the [`Event`] trait shared between [`GlobalEvent`] and [`TargetedEvent`].
+///
+/// [`World`]: crate::world::World
+/// [`Observer`]: crate::observer::Observer
+/// [`Events<E>`]: super::Events
+/// [`EventReader`]: super::EventReader
+/// [`EventWriter`]: super::EventWriter
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` is not an `GlobalEvent`",
+    label = "invalid `GlobalEvent`",
+    note = "consider annotating `{Self}` with `#[derive(GlobalEvent)]`"
+)]
+pub trait GlobalEvent: Event {}
+
+/// A targeted [`Event`] that is triggered for specific [`TriggerTargets`].
+///
+/// Targeted events can be observed by [`Observer`]s that are watching the entity or entities
+/// that the event was triggered for. They are useful for a "push" model of event handling
+/// where events are processed immediately after they are sent, at the next command flush.
+///
+/// The target can also be of type [`ComponentId`] if the event is triggered for a specific component
+/// instead of an entity.
+///
+/// For an event type that does not need to be associated with a specific entity,
+/// consider using [`GlobalEvent`] instead.
+///
+/// Events must be thread-safe.
+///
+/// ## Derive
+///
+/// This trait can be derived. Adding `auto_propagate` sets [`Self::AUTO_PROPAGATE`] to `true`,
+/// and adding `traversal = "X"` sets [`Self::Traversal`] to be of type "X".
+///
+/// ```
+/// use bevy_ecs::prelude::*;
+///
+/// #[derive(TargetedEvent)]
+/// #[event(auto_propagate)]
+/// struct MyEvent;
+/// ```
+///
+/// [`TriggerTargets`]: crate::observer::TriggerTargets
+/// [`ComponentId`]: crate::component::ComponentId
+/// [`Observer`]: crate::observer::Observer
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` is not an `TargetedEvent`",
+    label = "invalid `TargetedEvent`",
+    note = "consider annotating `{Self}` with `#[derive(TargetedEvent)]`"
+)]
+pub trait TargetedEvent: Event {
+    /// The component that describes which [`Entity`] to propagate this event to next, when [propagation] is enabled.
+    ///
+    /// [`Entity`]: crate::entity::Entity
+    /// [propagation]: crate::observer::Trigger::propagate
+    type Traversal: Traversal<Self>;
+
+    /// When true, this event will always attempt to propagate when [triggered], without requiring a call
+    /// to [`Trigger::propagate`].
+    ///
+    /// [triggered]: crate::system::Commands::trigger_targets
+    /// [`Trigger::propagate`]: crate::observer::Trigger::propagate
+    const AUTO_PROPAGATE: bool = false;
 }
 
 /// An internal type that implements [`Component`] for a given [`Event`] type.

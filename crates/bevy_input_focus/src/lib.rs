@@ -31,7 +31,9 @@ mod autofocus;
 pub use autofocus::*;
 
 use bevy_app::{App, Plugin, PreUpdate, Startup};
-use bevy_ecs::{prelude::*, query::QueryData, system::SystemParam, traversal::Traversal};
+use bevy_ecs::{
+    event::Event, prelude::*, query::QueryData, system::SystemParam, traversal::Traversal,
+};
 use bevy_input::{gamepad::GamepadButtonChangedEvent, keyboard::KeyboardInput, mouse::MouseWheel};
 use bevy_window::{PrimaryWindow, Window};
 use core::fmt::Debug;
@@ -137,19 +139,17 @@ pub struct InputFocusVisible(pub bool);
 ///
 /// To set up your own bubbling input event, add the [`dispatch_focused_input::<MyEvent>`](dispatch_focused_input) system to your app,
 /// in the [`InputFocusSystems::Dispatch`] system set during [`PreUpdate`].
-#[derive(Clone, Debug, Component)]
+#[derive(TargetedEvent, Clone, Debug, Component)]
+#[targeted_event(
+    traversal = WindowTraversal,
+    auto_propagate,
+)]
 #[cfg_attr(feature = "bevy_reflect", derive(Reflect), reflect(Component, Clone))]
 pub struct FocusedInput<E: Event + Clone> {
     /// The underlying input event.
     pub input: E,
     /// The primary window entity.
     window: Entity,
-}
-
-impl<E: Event + Clone> Event for FocusedInput<E> {
-    type Traversal = WindowTraversal;
-
-    const AUTO_PROPAGATE: bool = true;
 }
 
 #[derive(QueryData)]
@@ -228,7 +228,7 @@ pub fn set_initial_focus(
 
 /// System which dispatches bubbled input events to the focused entity, or to the primary window
 /// if no entity has focus.
-pub fn dispatch_focused_input<E: Event + Clone>(
+pub fn dispatch_focused_input<E: GlobalEvent + Clone>(
     mut key_events: EventReader<E>,
     focus: Res<InputFocus>,
     windows: Query<Entity, With<PrimaryWindow>>,

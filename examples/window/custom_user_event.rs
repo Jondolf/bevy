@@ -6,7 +6,7 @@ use bevy::{
 };
 use std::fmt::Formatter;
 
-#[derive(Default, Debug, Event)]
+#[derive(Default, Debug, GlobalEvent)]
 enum CustomEvent {
     #[default]
     WakeUp,

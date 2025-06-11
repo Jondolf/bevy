@@ -6,8 +6,8 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 
 /// An event that's sent whenever the user changes one of the settings by
 /// clicking a radio button.
-#[derive(Clone, Event, Deref, DerefMut)]
-pub struct WidgetClickEvent<T>(T);
+#[derive(Clone, GlobalEvent, Deref, DerefMut)]
+pub struct WidgetClickEvent<T: Clone + Send + Sync + 'static>(T);
 
 /// A marker component that we place on all widgets that send
 /// [`WidgetClickEvent`]s of the given type.

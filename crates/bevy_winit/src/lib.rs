@@ -69,9 +69,9 @@ thread_local! {
 /// in systems.
 ///
 /// When using eg. `MinimalPlugins` you can add this using `WinitPlugin::<WakeUp>::default()`, where
-/// `WakeUp` is the default `Event` that bevy uses.
+/// `WakeUp` is the default `GlobalEvent` that bevy uses.
 #[derive(Default)]
-pub struct WinitPlugin<T: Event = WakeUp> {
+pub struct WinitPlugin<T: GlobalEvent = WakeUp> {
     /// Allows the window (and the event loop) to be created on any thread
     /// instead of only the main thread.
     ///
@@ -85,7 +85,7 @@ pub struct WinitPlugin<T: Event = WakeUp> {
     marker: PhantomData<T>,
 }
 
-impl<T: Event> Plugin for WinitPlugin<T> {
+impl<T: GlobalEvent> Plugin for WinitPlugin<T> {
     fn name(&self) -> &str {
         "bevy_winit::WinitPlugin"
     }
@@ -153,7 +153,7 @@ impl<T: Event> Plugin for WinitPlugin<T> {
 
 /// The default event that can be used to wake the window loop
 /// Wakes up the loop if in wait state
-#[derive(Debug, Default, Clone, Copy, Event, Reflect)]
+#[derive(Debug, Default, Clone, Copy, GlobalEvent, Reflect)]
 #[reflect(Debug, Default, Clone)]
 pub struct WakeUp;
 
@@ -164,7 +164,7 @@ pub struct WakeUp;
 ///
 /// When you receive this event it has already been handled by Bevy's main loop.
 /// Sending these events will NOT cause them to be processed by Bevy.
-#[derive(Debug, Clone, Event)]
+#[derive(Debug, Clone, GlobalEvent)]
 pub struct RawWinitWindowEvent {
     /// The window for which the event was fired.
     pub window_id: WindowId,
@@ -173,7 +173,7 @@ pub struct RawWinitWindowEvent {
 }
 
 /// A wrapper type around [`winit::event_loop::EventLoopProxy`] with the specific
-/// [`winit::event::Event::UserEvent`] used in the [`WinitPlugin`].
+/// [`winit::event::GlobalEvent::UserEvent`] used in the [`WinitPlugin`].
 ///
 /// The `EventLoopProxy` can be used to request a redraw from outside bevy.
 ///

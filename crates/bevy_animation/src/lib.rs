@@ -324,13 +324,13 @@ impl AnimationClip {
             .push(variable_curve);
     }
 
-    /// Add a untargeted [`Event`] to this [`AnimationClip`].
+    /// Add a [`TargetedEvent`] with no [`AnimationTarget`] to this [`AnimationClip`].
     ///
     /// The `event` will be cloned and triggered on the [`AnimationPlayer`] entity once the `time` (in seconds)
     /// is reached in the animation.
     ///
     /// See also [`add_event_to_target`](Self::add_event_to_target).
-    pub fn add_event(&mut self, time: f32, event: impl Event + Clone) {
+    pub fn add_event(&mut self, time: f32, event: impl TargetedEvent + Clone) {
         self.add_event_fn(
             time,
             move |commands: &mut Commands, entity: Entity, _time: f32, _weight: f32| {
@@ -339,7 +339,7 @@ impl AnimationClip {
         );
     }
 
-    /// Add an [`Event`] to an [`AnimationTarget`] named by an [`AnimationTargetId`].
+    /// Add a [`TargetedEvent`] to an [`AnimationTarget`] named by an [`AnimationTargetId`].
     ///
     /// The `event` will be cloned and triggered on the entity matching the target once the `time` (in seconds)
     /// is reached in the animation.
@@ -349,7 +349,7 @@ impl AnimationClip {
         &mut self,
         target_id: AnimationTargetId,
         time: f32,
-        event: impl Event + Clone,
+        event: impl TargetedEvent + Clone,
     ) {
         self.add_event_fn_to_target(
             target_id,
@@ -360,7 +360,7 @@ impl AnimationClip {
         );
     }
 
-    /// Add a untargeted event function to this [`AnimationClip`].
+    /// Add an event function with no [`AnimationTarget`] to this [`AnimationClip`].
     ///
     /// The `func` will trigger on the [`AnimationPlayer`] entity once the `time` (in seconds)
     /// is reached in the animation.
@@ -1534,7 +1534,7 @@ mod tests {
 
     use super::*;
 
-    #[derive(Event, Reflect, Clone)]
+    #[derive(TargetedEvent, Reflect, Clone)]
     struct A;
 
     #[track_caller]

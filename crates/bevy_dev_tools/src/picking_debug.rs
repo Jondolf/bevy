@@ -121,7 +121,7 @@ impl Plugin for DebugPickingPlugin {
 }
 
 /// Listen for any event and logs it at the debug level
-pub fn log_event_debug<E: Event + Debug>(mut events: EventReader<pointer::PointerInput>) {
+pub fn log_event_debug<E: GlobalEvent + Debug>(mut events: EventReader<pointer::PointerInput>) {
     for event in events.read() {
         debug!("{event:?}");
     }

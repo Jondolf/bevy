@@ -12,6 +12,7 @@ use crate::{
     change_detection::MaybeLocation,
     component::ComponentId,
     entity::EntityHashMap,
+    event::Event,
     prelude::*,
     system::IntoObserverSystem,
     world::{DeferredWorld, *},
@@ -586,10 +587,19 @@ impl World {
 
     pub(crate) fn trigger_with_caller<E: Event>(&mut self, mut event: E, caller: MaybeLocation) {
         let event_id = E::register_component_id(self);
-        // SAFETY: We just registered `event_id` with the type of `event`
+        let mut world = DeferredWorld::from(self);
+
+        // SAFETY: We just registered `event_id` with the type of `event`.
         unsafe {
-            self.trigger_targets_dynamic_ref_with_caller(event_id, &mut event, (), caller);
-        }
+            world.trigger_observers_with_data::<_, ()>(
+                event_id,
+                None,
+                core::iter::empty(),
+                &mut event,
+                false,
+                caller,
+            );
+        };
     }
 
     /// Triggers the given [`Event`] as a mutable reference, which will run any [`Observer`]s watching for it.
@@ -599,21 +609,32 @@ impl World {
     #[track_caller]
     pub fn trigger_ref<E: Event>(&mut self, event: &mut E) {
         let event_id = E::register_component_id(self);
-        // SAFETY: We just registered `event_id` with the type of `event`
-        unsafe { self.trigger_targets_dynamic_ref(event_id, event, ()) };
+        let mut world = DeferredWorld::from(self);
+
+        // SAFETY: We just registered `event_id` with the type of `event`.
+        unsafe {
+            world.trigger_observers_with_data::<_, ()>(
+                event_id,
+                None,
+                core::iter::empty(),
+                event,
+                false,
+                MaybeLocation::caller(),
+            );
+        };
     }
 
-    /// Triggers the given [`Event`] for the given `targets`, which will run any [`Observer`]s watching for it.
+    /// Triggers the given [`TargetedEvent`] for the given `targets`, which will run any [`Observer`]s watching for it.
     ///
     /// While event types commonly implement [`Copy`],
     /// those that don't will be consumed and will no longer be accessible.
     /// If you need to use the event after triggering it, use [`World::trigger_targets_ref`] instead.
     #[track_caller]
-    pub fn trigger_targets<E: Event>(&mut self, event: E, targets: impl TriggerTargets) {
+    pub fn trigger_targets<E: TargetedEvent>(&mut self, event: E, targets: impl TriggerTargets) {
         self.trigger_targets_with_caller(event, targets, MaybeLocation::caller());
     }
 
-    pub(crate) fn trigger_targets_with_caller<E: Event>(
+    pub(crate) fn trigger_targets_with_caller<E: TargetedEvent>(
         &mut self,
         mut event: E,
         targets: impl TriggerTargets,
@@ -626,19 +647,23 @@ impl World {
         }
     }
 
-    /// Triggers the given [`Event`] as a mutable reference for the given `targets`,
+    /// Triggers the given [`TargetedEvent`] as a mutable reference for the given `targets`,
     /// which will run any [`Observer`]s watching for it.
     ///
     /// Compared to [`World::trigger_targets`], this method is most useful when it's necessary to check
     /// or use the event after it has been modified by observers.
     #[track_caller]
-    pub fn trigger_targets_ref<E: Event>(&mut self, event: &mut E, targets: impl TriggerTargets) {
+    pub fn trigger_targets_ref<E: TargetedEvent>(
+        &mut self,
+        event: &mut E,
+        targets: impl TriggerTargets,
+    ) {
         let event_id = E::register_component_id(self);
         // SAFETY: We just registered `event_id` with the type of `event`
         unsafe { self.trigger_targets_dynamic_ref(event_id, event, targets) };
     }
 
-    /// Triggers the given [`Event`] for the given `targets`, which will run any [`Observer`]s watching for it.
+    /// Triggers the given [`TargetedEvent`] for the given `targets`, which will run any [`Observer`]s watching for it.
     ///
     /// While event types commonly implement [`Copy`],
     /// those that don't will be consumed and will no longer be accessible.
@@ -648,7 +673,7 @@ impl World {
     ///
     /// Caller must ensure that `event_data` is accessible as the type represented by `event_id`.
     #[track_caller]
-    pub unsafe fn trigger_targets_dynamic<E: Event, Targets: TriggerTargets>(
+    pub unsafe fn trigger_targets_dynamic<E: TargetedEvent, Targets: TriggerTargets>(
         &mut self,
         event_id: ComponentId,
         mut event_data: E,
@@ -660,7 +685,7 @@ impl World {
         };
     }
 
-    /// Triggers the given [`Event`] as a mutable reference for the given `targets`,
+    /// Triggers the given [`TargetedEvent`] as a mutable reference for the given `targets`,
     /// which will run any [`Observer`]s watching for it.
     ///
     /// Compared to [`World::trigger_targets_dynamic`], this method is most useful when it's necessary to check
@@ -670,7 +695,7 @@ impl World {
     ///
     /// Caller must ensure that `event_data` is accessible as the type represented by `event_id`.
     #[track_caller]
-    pub unsafe fn trigger_targets_dynamic_ref<E: Event, Targets: TriggerTargets>(
+    pub unsafe fn trigger_targets_dynamic_ref<E: TargetedEvent, Targets: TriggerTargets>(
         &mut self,
         event_id: ComponentId,
         event_data: &mut E,
@@ -687,7 +712,7 @@ impl World {
     /// # Safety
     ///
     /// See `trigger_targets_dynamic_ref`
-    unsafe fn trigger_targets_dynamic_ref_with_caller<E: Event, Targets: TriggerTargets>(
+    unsafe fn trigger_targets_dynamic_ref_with_caller<E: TargetedEvent, Targets: TriggerTargets>(
         &mut self,
         event_id: ComponentId,
         event_data: &mut E,
@@ -847,10 +872,12 @@ impl World {
 mod tests {
     use alloc::{vec, vec::Vec};
 
+    use bevy_ecs_macros::TargetedEvent;
     use bevy_platform::collections::HashMap;
     use bevy_ptr::OwningPtr;
 
     use crate::component::ComponentId;
+    use crate::event::Event;
     use crate::{
         change_detection::MaybeLocation,
         observer::{Observer, OnReplace},
@@ -871,10 +898,10 @@ mod tests {
     #[component(storage = "SparseSet")]
     struct S;
 
-    #[derive(Event)]
+    #[derive(TargetedEvent)]
     struct EventA;
 
-    #[derive(Event)]
+    #[derive(TargetedEvent)]
     struct EventWithData {
         counter: usize,
     }
@@ -898,8 +925,8 @@ mod tests {
         }
     }
 
-    #[derive(Component, Event)]
-    #[event(traversal = &'static ChildOf, auto_propagate)]
+    #[derive(Component, TargetedEvent)]
+    #[targeted_event(traversal = &'static ChildOf, auto_propagate)]
     struct EventPropagating;
 
     #[test]
@@ -1731,7 +1758,7 @@ mod tests {
     #[test]
     #[track_caller]
     fn observer_caller_location_event() {
-        #[derive(Event)]
+        #[derive(GlobalEvent)]
         struct EventA;
 
         let caller = MaybeLocation::caller();

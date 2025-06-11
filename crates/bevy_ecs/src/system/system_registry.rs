@@ -838,7 +838,7 @@ mod tests {
 
     #[test]
     fn system_with_input_mut() {
-        #[derive(Event)]
+        #[derive(GlobalEvent)]
         struct MyEvent {
             cancelled: bool,
         }
