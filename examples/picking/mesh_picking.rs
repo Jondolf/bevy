@@ -157,7 +157,7 @@ fn setup_scene(
 }
 
 /// Returns an observer that updates the entity's material to the one specified.
-fn update_material_on<E>(
+fn update_material_on<E: TargetedEvent>(
     new_material: Handle<StandardMaterial>,
 ) -> impl Fn(Trigger<E>, Query<&mut MeshMaterial3d<StandardMaterial>>) {
     // An observer closure that captures `new_material`. We do this to avoid needing to write four

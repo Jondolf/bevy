@@ -25,7 +25,6 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// Observers listen for a "trigger" of a specific [`Event`]. Events are triggered by calling [`World::trigger`]
 /// or [`World::trigger_targets`].
 ///
-///
 /// Note that "buffered" events sent using [`EventReader`] and [`EventWriter`] are _not_ automatically triggered.
 /// They must be triggered at a specific point in the schedule.
 ///

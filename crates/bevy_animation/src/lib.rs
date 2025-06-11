@@ -365,7 +365,7 @@ impl AnimationClip {
     /// The `func` will trigger on the [`AnimationPlayer`] entity once the `time` (in seconds)
     /// is reached in the animation.
     ///
-    /// For a simpler [`Event`]-based alternative, see [`AnimationClip::add_event`].
+    /// For a simpler [`TargetedEvent`]-based alternative, see [`AnimationClip::add_event`].
     /// See also [`add_event_to_target`](Self::add_event_to_target).
     ///
     /// ```
@@ -388,7 +388,7 @@ impl AnimationClip {
     /// The `func` will trigger on the entity matching the target once the `time` (in seconds)
     /// is reached in the animation.
     ///
-    /// For a simpler [`Event`]-based alternative, see [`AnimationClip::add_event_to_target`].
+    /// For a simpler [`TargetedEvent`]-based alternative, see [`AnimationClip::add_event_to_target`].
     /// Use [`add_event`](Self::add_event) instead if you don't have a specific target.
     ///
     /// ```

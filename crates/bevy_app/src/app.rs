@@ -1482,7 +1482,7 @@ mod tests {
         change_detection::{DetectChanges, ResMut},
         component::Component,
         entity::Entity,
-        event::{Event, EventWriter, Events, GlobalEvent},
+        event::{EventWriter, Events, GlobalEvent},
         lifecycle::RemovedComponents,
         query::With,
         resource::Resource,
