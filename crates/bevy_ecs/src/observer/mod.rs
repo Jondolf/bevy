@@ -68,24 +68,6 @@ impl<'w, E, B: Bundle> Trigger<'w, E, B> {
         Ptr::from(&self.event)
     }
 
-    /// Returns the [`Entity`] that was targeted by the `event` that triggered this observer. It may
-    /// be [`None`] if the trigger is not for a particular entity.
-    ///
-    /// Observable events can target specific entities. When those events fire, they will trigger
-    /// any observers on the targeted entities. In this case, the `target()` and `observer()` are
-    /// the same, because the observer that was triggered is attached to the entity that was
-    /// targeted by the event.
-    ///
-    /// However, it is also possible for those events to bubble up the entity hierarchy and trigger
-    /// observers on *different* entities, or trigger a global observer. In these cases, the
-    /// observing entity is *different* from the entity being targeted by the event.
-    ///
-    /// This is an important distinction: the entity reacting to an event is not always the same as
-    /// the entity triggered by the event.
-    pub fn target(&self) -> Option<Entity> {
-        self.trigger.target
-    }
-
     /// Returns the components that triggered the observer, out of the
     /// components defined in `B`. Does not necessarily include all of them as
     /// `B` acts like an `OR` filter rather than an `AND` filter.
@@ -119,14 +101,38 @@ impl<'w, E, B: Bundle> Trigger<'w, E, B> {
         self.trigger.observer
     }
 
+    /// Returns the source code location that triggered this observer.
+    pub fn caller(&self) -> MaybeLocation {
+        self.trigger.caller
+    }
+}
+
+impl<'w, E: TargetedEvent, B: Bundle> Trigger<'w, E, B> {
+    /// Returns the [`Entity`] that was targeted by the `event` that triggered this observer.
+    ///
+    /// Observable events can target specific entities. When those events fire, they will trigger
+    /// any observers on the targeted entities. In this case, the `target()` and `observer()` are
+    /// the same, because the observer that was triggered is attached to the entity that was
+    /// targeted by the event.
+    ///
+    /// However, it is also possible for those events to bubble up the entity hierarchy and trigger
+    /// observers on *different* entities, or trigger a global observer. In these cases, the
+    /// observing entity is *different* from the entity being targeted by the event.
+    ///
+    /// This is an important distinction: the entity reacting to an event is not always the same as
+    /// the entity triggered by the event.
+    pub fn target(&self) -> Option<Entity> {
+        self.trigger.target
+    }
+
     /// Enables or disables event propagation, allowing the same event to trigger observers on a chain of different entities.
     ///
     /// The path an event will propagate along is specified by its associated [`Traversal`] component. By default, events
     /// use `()` which ends the path immediately and prevents propagation.
     ///
     /// To enable propagation, you must:
-    /// + Set [`Event::Traversal`] to the component you want to propagate along.
-    /// + Either call `propagate(true)` in the first observer or set [`Event::AUTO_PROPAGATE`] to `true`.
+    /// + Set [`TargetedEvent::Traversal`] to the component you want to propagate along.
+    /// + Either call `propagate(true)` in the first observer or set [`TargetedEvent::AUTO_PROPAGATE`] to `true`.
     ///
     /// You can prevent an event from propagating further using `propagate(false)`.
     ///
@@ -140,11 +146,6 @@ impl<'w, E, B: Bundle> Trigger<'w, E, B> {
     /// [`propagate`]: Trigger::propagate
     pub fn get_propagate(&self) -> bool {
         *self.propagate
-    }
-
-    /// Returns the source code location that triggered this observer.
-    pub fn caller(&self) -> MaybeLocation {
-        self.trigger.caller
     }
 }
 
